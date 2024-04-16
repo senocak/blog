@@ -71,7 +71,6 @@ fun main() {
         .also { println(message = it) }
     // Araba(marka='Toyota', model='Camry', yil=2022, renk='Red', beygir=203)
 }
-
 ----
 
 == Uygulanabilirlik
