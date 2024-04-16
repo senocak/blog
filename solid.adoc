@@ -1,0 +1,226 @@
+= Pattern: SOLID
+:source-highlighter: highlight.js
+Anıl Şenocak <senocakanil@gmail.com>
+2.0, April 16, 2024
+:description: SOLID
+:organization: Personal
+:doctype: book
+:preface-title: Preface
+// Settings:
+:experimental:
+:reproducible:
+:icons: font
+:listing-caption: Listing
+:sectnums:
+:toc:
+:toclevels: 3
+:xrefstyle: short
+:nofooter:
+// URIs:
+:url-quickref: https://github.com/senocak/tutorials/tree/master/
+
+[%notitle]
+--
+[abstract]
+{description}
+--
+
+== Single responsibility principle
+Bir sınıfın değişmesi için yalnızca bir nedeni olmalıdır.
+
+=== İyi Örnek
+[source,kotlin]
+----
+class EmailSender {
+    fun sendEmail(to: String, subject: String, body: String): Unit = TODO()
+}
+----
+=== Kötü Örnek
+[source,kotlin]
+----
+class User {
+    fun registerUser(): Unit = TODO()
+    fun sendConfirmationEmail() : Unit = TODO()
+}
+----
+
+== Open/Closed principle
+Sınıf'lar genişletmeye açık, ancak değişiklik için kapalı olmalıdır.
+
+=== İyi Örnek
+[source,kotlin]
+----
+interface Shape {
+    fun area(): Double
+}
+
+class Rectangle(private val width: Double, private val height: Double) : Shape {
+    override fun area(): Double = width * height
+}
+
+class Circle(private val radius: Double) : Shape {
+    override fun area(): Double = Math.PI * radius * radius
+}
+----
+=== Kötü Örnek
+[source,kotlin]
+----
+class Rectangle(private val width: Double, private val height: Double) {
+    fun calculateArea(): Double = width * height
+}
+
+class Circle(private val radius: Double) {
+    fun calculateArea(): Double = Math.PI * radius * radius
+}
+----
+
+Her sınıfın alanı hesaplaması için kendi özel kod bloğu olması gereklidir.
+
+== Liskov Substitution Principle
+Alt sınıflar, üst sınıf türü tanımlarını asla bozmamalıdır.
+
+=== İyi Örnek
+[source,kotlin]
+----
+open class Rectangle(open val width: Double, open val height: Double) {
+    fun area(): Double = width * height
+}
+
+class Square(override var width: Double) : Rectangle(width, width) {
+    override val height: Double = width
+}
+----
+=== Kötü Örnek
+[source,kotlin]
+----
+open class Bird {
+    open fun fly() {
+        println("Bird is flying")
+    }
+}
+
+class Ostrich : Bird() {
+    override fun fly() {
+        throw UnsupportedOperationException("Ostrich cannot fly")
+    }
+}
+----
+
+== Interface Segregation Principle
+Hiçbir client, kullanmadığı metodlara bağımlı olmaya zorlanmamalıdır. Arayüzde bağımlı sınıf tarafından görülebilen üye sayısı en aza indirilmelidir. Büyük sınıflar, işlevleri kullanımlarına göre gruplayan birden çok daha küçük arayüz uygulamalıdır.
+
+=== İyi Örnek
+[source,kotlin]
+----
+// Original interface
+interface Printer {
+    fun print()
+    fun scan()
+    fun fax()
+}
+
+// Refactored interfaces
+interface Printable {
+    fun print()
+}
+
+interface Scanable {
+    fun scan()
+}
+
+interface Faxable {
+    fun fax()
+}
+
+class SimplePrinter : Printable {
+    override fun print() {
+        println("Printing document...")
+    }
+}
+
+class AdvancedPrinter : Printable, Scanable, Faxable {
+    override fun print() {
+        println("Printing document...")
+    }
+
+    override fun scan() {
+        println("Scanning document...")
+    }
+
+    override fun fax() {
+        println("Faxing document...")
+    }
+}
+----
+=== Kötü Örnek
+[source,kotlin]
+----
+interface Printer {
+    fun print()
+    fun scan()
+    fun fax()
+}
+
+class SimplePrinter : Printer {
+    override fun print() {
+        println("Printing document...")
+    }
+
+    override fun scan() {
+        // Not supported
+        throw UnsupportedOperationException("Scanning not supported")
+    }
+
+    override fun fax() {
+        // Not supported
+        throw UnsupportedOperationException("Faxing not supported")
+    }
+}
+----
+
+== Dependency inversion principle
+Yüksek seviyeli modüller, düşük seviyeli modüllere bağlı olmamalıdır. Her ikisi de soyutlamalara dayanmalıdır. Soyutlamalar ayrıntılara bağlı olmamalıdır.
+
+=== İyi Örnek
+[source,kotlin]
+----
+class NotificationService {
+    fun notifyUserByEmail(message: String) {
+        val emailNotification = EmailNotificationProvider()
+        emailNotification.sendNotification(message)
+    }
+
+    fun notifyUserBySMS(message: String) {
+        val smsNotification = SMSNotificationProvider()
+        smsNotification.sendNotification(message)
+    }
+}
+----
+=== Kötü Örnek
+[source,kotlin]
+----
+// Abstraction
+interface NotificationProvider {
+    fun sendNotification(message: String)
+}
+
+// Concrete implementations
+class EmailNotificationProvider : NotificationProvider {
+    override fun sendNotification(message: String) {
+        println("Sending email notification: $message")
+    }
+}
+
+class SMSNotificationProvider : NotificationProvider {
+    override fun sendNotification(message: String) {
+        println("Sending SMS notification: $message")
+    }
+}
+
+// High-level module
+class NotificationService(private val notificationProvider: NotificationProvider) {
+    fun notifyUser(message: String) {
+        notificationProvider.sendNotification(message)
+    }
+}
+----

@@ -1,0 +1,95 @@
+= Java: JUnit 5 vs JUnit 4
+:source-highlighter: highlight.js
+Anıl Şenocak <senocakanil@gmail.com>
+2.0, April 16, 2024
+:description: JUnit 5, Java 8 kodlama stilini uyarlamayı ve JUnit 4'ten daha sağlam ve esnek olmayı amaçlamaktadır.
+:organization: Personal
+:doctype: book
+:preface-title: Preface
+// Settings:
+:experimental:
+:reproducible:
+:icons: font
+:listing-caption: Listing
+:sectnums:
+:toc:
+:toclevels: 3
+:xrefstyle: short
+:nofooter:
+// URIs:
+
+[%notitle]
+--
+[abstract]
+{description}
+--
+
+image:images/junit-5-vs-junit-4.png[junit-5-vs-junit-4]
+
+== Annotations
+
+|===
+| |JUNIT 4 |JUNIT 5
+
+|Test metodu tanımlama|@Test|@Test
+|Varolan sınıfta tüm testleri çalıştırmadan önce çalışacak|@BeforeClass|@BeforeAll
+|Varolan sınıfta tüm testleri çalıştırdıktan sonra çalışacak|@AfterClass|@AfterAll
+|Her testten önce çalışacak|@Before|@BeforeEach
+|Her testten sonra çalışacak|@After|@AfterEach
+|Test'i disable etmek|@Ignore|@Disabled
+|Dinamik testler için Test factory|NA|@TestFactory
+|Nested testler|NA|@Nested
+|Etiketleme ve filtreleme|@Category|@Tag
+|Custm uzantıları etkinleştirme|NA|@ExtendWith
+|===
+
+== Architecture
+1. JUnit 4, tek bir jar dosyasında paketlenmiş her şeye sahiptir.
+2. Junit 5, 3 alt projeden oluşmaktadır.
+    - `JUnit Platform`: Platformda çalışan yeni test frameworkleri geliştirmek için TestEngine API'sini tanımlar.
+    - `JUnit Jupiter`: Bu ek açıklamalarla yazılmış testleri çalıştırmak için tüm yeni junit ek açıklamalarına ve TestEngine uygulamasına sahiptir.
+    - `JUnit Vintage`: JUnit 5 platformunda JUnit 3 ve JUnit 4 yazılı testlerinin çalıştırılmasını desteklemek için.
+
+== Required JDK Version
+- Junit 4, Java 5 veya daha üzeri,
+- Junit 5, Java 8 veya üzeri versiyonlara ihtiyaç duyar.
+
+
+== Assertion
+Junit 4'te, `org.junit.Assert`, beklenen ve elde edilen sonuçları doğrulamak için tüm assert yöntemlerine sahiptir. Yöntem imzasında ilk argüman olarak hata mesajı için ekstra parametre kabul ederler.
+
+public static void assertEquals(long expected, long actual)
+public static void assertEquals(String message, long expected, long actual)
+JUnit 5'te, org.junit.jupiter.Assertions, ek olarak assertThrows() ve assertAll() yöntemleri dahil, çoğu assert yöntemini içerir.
+
+JUnit 5 assertion yöntemleri ayrıca, testin başarısız olması durumunda yazdırılacak hata mesajını iletmeyi desteklemek için aşırı yüklenmiş yöntemlere sahiptir;
+
+[source,java]
+----
+public static void assertEquals(long expected, long actual);
+public static void assertEquals(long expected, long actual, String message);
+public static void assertEquals(long expected, long actual, Supplier messageSupplier);
+----
+
+== Assumptions
+1. Junit 4'te, `org.junit.Assume`, bir testin anlamlı olduğu koşullar hakkında varsayımları belirtmek için metodlar içerir.
+
+    - assumeFalse()
+    - assumeNoException()
+    - assumeNotNull()
+    - assumeThat()
+    - assumeTrue()
+
+2. Junit 5'te, `org.junit.jupiter.api.Assumptions`, bir testin anlamlı olduğu koşullarla ilgili varsayımları belirtmek için yöntemler içerir.
+
+    - assumeFalse()
+    - assumingThat​()
+    - assumeTrue()
+
+== Etiketleme ve filtreleme
+- Junit 4'te, `@Category` annotation'ı
+- Junit 5'te, `@Tag` annotation'ı kullanılır.
+
+== 3rd Party Integration
+- Junit 4'te 3. taraf eklentiler ve IDE'ler için entegrasyon desteği yoktur. Reflection'lara güvenmek zorundalar.
+- JUnit 5, bu amaç için, yani JUnit Platformu için özel bir alt projeye sahiptir. Platformda çalışan bir test çerçevesi geliştirmek için TestEngine API'sini tanımlar.

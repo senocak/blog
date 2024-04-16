@@ -1,0 +1,128 @@
+= Producer Consumer Pattern
+:source-highlighter: highlight.js
+Anıl Şenocak <senocakanil@gmail.com>
+2.0, April 16, 2024
+:description: Amacı işin tanımlanması ile işin yürütülmesi'ni ayırarak Producer ve Consumer arasındaki bağlantıyı azaltan klasik bir eşzamanlılık modelidir.
+:organization: Personal
+:doctype: book
+:preface-title: Preface
+// Settings:
+:experimental:
+:reproducible:
+:icons: font
+:listing-caption: Listing
+:sectnums:
+:toc:
+:toclevels: 3
+:xrefstyle: short
+:nofooter:
+// URIs:
+
+[%notitle]
+--
+[abstract]
+{description}
+--
+
+== Açıklama
+Akışı kontrol etmek için paylaşılan bir kuyruk kullanılır ve bu ayrım, üretici ve tüketiciyi ayrı ayrı kodlamanıza olanak tanır. Ayrıca, öğelerin üretilmesi veya tüketilen öğelerin farklı zamanlama gereksinimleri konusunu da ele alır. Hem Producer hem de Consumer farklı hızlarda çalışabilir.
+
+----
+Bu model gerçek hayatta her yerdedir ve koordinasyon ve işbirliğini tasvir eder. Bir kişi yemek hazırlarken(Producer), diğeri yemek servisi yapıyor(Consumer) gibi, ikisi de yemek tabaklarını koymak ve yemek tabaklarını almak için ortak bir masa kullanacak.
+
+Eğer masa doluysa Consumer, boş ise Producer bekleyecektir. Masa burada paylaşılan bir nesnedir. Java kitaplığında, Executor framework, görevin eklenmesi ve yürütülmesinin sorumluluğunu ayıran Producer Consumer tasarım modelini uygular.
+----
+
+== Faydaları
+Gerçekten de kullanışlı bir modeldir ve en yaygın olarak çok iş parçacıklı veya eşzamanlı kod yazarken kullanılır.
+
+- Producer ve Consumer bağımsız olarak ve eşzamanlı olarak yapılabilir, yalnızca paylaşılan nesneyi bilmeleri gerekir.
+- Producer ve Consumer'ın kim olduğunu veya kaç üretici ve tüketici olduğunu bilmesine gerek yoktur.
+- Producer ve Consumer farklı hızlarda çalışabilir.
+- Producer ve Consumer işlevlerinin ayrılması, daha temiz, okunabilir ve yönetilebilir kod sağlar.
+
+== Multi-threading Problem
+Kuyruk doluysa Producer'ın beklemesi ve kuyruk boşsa Consumer'ın beklemesi için Producer ve Consumer tasarım modelini uygulamasını istediği popüler bir java problemidir.
+
+Bu problem Java'da farklı yollarla uygulanabilir veya çözülebilir, klasik yol, Producer ve Consumer iş parçacığı arasında iletişim kurmak için `wait` ve `notify` method kullanmak ve her birini kuyruk dolu mu boş mu gibi koşullarda eklenmesidir.
+
+Java 5'te `BlockingQueue` veri yapısının tanıtılmasıyla çok daha basitleşmiştir çünkü BlockingQueue, `put()` ve `take()` yöntemlerini tanıtarak bu kontrolü implicitly olarak sağlar. Artık Producer ve Consumer arasında iletişim kurmak için wait ve notify özelliğini kullanmamıza gerek yok. BlockingQueue put() yöntemi, sınırlı kuyruk durumunda kuyruk doluysa ve kuyruk boşsa take() yöntemi engeller.
+
+
+=== Producer Consumer Modelini uygulamak için Blocking Queue Kullanma
+Geliştiricinin, iletişimi uygulamak için kafa karıştırıcı ve kritik bir `wait` - `notify` kodu yazması gerekmez. BlockingQueue bir interfacedir ve Java 5, ArrayBlockingQueue ve LinkedBlockingQueue gibi farklı implantasyon sağlar, her ikisi de `FIFO` düzenini uygular, ArrayLinkedQueue doğası gereği sınırlıdır, LinkedBlockingQueue isteğe bağlı olarak sınırlıdır.
+
+[source,kotlin]
+----
+import java.util.concurrent.ArrayBlockingQueue
+
+val queue = ArrayBlockingQueue<Int>(10) // Shared data structure
+
+// Producer class
+class Producer(private val id: Int) : Thread() {
+    override fun run() {
+        for (i in 1..5) {
+            try {
+                val number = (Math.random() * 100).toInt() // Simulated data
+                println(message = "Producer $id produced: $number")
+                queue.put(number) // Put the produced data into the queue
+                sleep((Math.random() * 1_000).toLong()) // Simulated processing time
+            } catch (ex: InterruptedException) {
+                println(message = "Producer: InterruptedException: ${ex.message}")
+            }
+        }
+    }
+}
+
+// Consumer class
+class Consumer(private val id: Int) : Thread() {
+    override fun run() {
+        while (true) {
+            try {
+                val number = queue.take() // Take data from the queue
+                println(message = "Consumer $id consumed: $number")
+                sleep((number * 1_000).toLong()) // Simulated processing time
+            } catch (ex: InterruptedException) {
+                println(message = "Consumer: InterruptedException: ${ex.message}")
+            }
+        }
+    }
+}
+
+fun main() {
+    val producers = Array(2) { Producer(it) } // Two producers
+    val consumers = Array(3) { Consumer(it) } // Three consumers
+
+    producers.forEach { it.start() } // Start producer threads
+    consumers.forEach { it.start() } // Start consumer threads
+
+    // Let the program run for a while
+    Thread.sleep(10_000)
+
+    // Interrupt all threads to stop the program
+    producers.forEach { it.interrupt() }
+    consumers.forEach { it.interrupt() }
+}
+----
+
+== Verification
+[source,kotlin]
+----
+/*
+Producer 1 produced: 72
+Producer 0 produced: 72
+Consumer 1 consumed: 72
+Consumer 0 consumed: 72
+Producer 1 produced: 72
+Consumer 2 consumed: 72
+Producer 0 produced: 5
+Producer 1 produced: 20
+Producer 1 produced: 8
+Producer 0 produced: 75
+Producer 0 produced: 48
+Producer 1 produced: 58
+Producer 0 produced: 47
+ */
+----
+
+link:examples/producer-consumer-pattern.kt[producer-consumer-pattern]

@@ -1,0 +1,30 @@
+= Kotlin / Java / SpringBoot
+:nofooter:
+:icons: font
+:url-quickref: https://github.com/senocak/blog
+
+TIP: While it is common to find https://spring.io/projects/spring-boot[Spring Boot] tutorials on the Internet, it is challenging to find tutorials that are up-to-date and include automated tests to demonstrate the implementation and ensure stability.
+
+== Patterns
+
+|===
+|Topic |Description
+
+|link:api-gateway-pattern[API Gateway Pattern] |The API gateway acts as a single entry point for clients to access the microservices, allowing clients to interact with the microservices as if they were a single service.
+|link:abstract-document-pattern[Abstract Document Pattern] |An object-oriented structural design pattern for organizing objects in loosely typed key-value stores and exposing the data using typed views.
+|link:singleton-pattern[Singleton Pattern] |Restricts the instantiation of a class and ensures that only one instance of the class exists in the Java Virtual Machine
+|link:builder-pattern[Builder Pattern] |To provide a flexible solution to various object creation problems in oop.
+|link:cache-aside-pattern[Cache Aside Pattern] |Loads data into the cache on demand.
+|link:producer-consumer-pattern[Producer Consumer Pattern] | Amacı işin tanımlanması ile işin yürütülmesi'ni ayırarak Producer ve Consumer arasındaki bağlantıyı azaltan klasik bir eşzamanlılık modelidir.
+|link:solid[SOLID] | Single responsibility, Open/Closed, Liskov Substitution, Interface Segregation, Dependency inversion
+|===
+
+
+== Java
+
+|===
+|Topic |Description
+
+|link:junit-5-vs-junit-4[JUnit 5 vs JUnit 4] |JUnit 5, Java 8 kodlama stilini uyarlamayı ve JUnit 4'ten daha sağlam ve esnek olmayı amaçlamaktadır.
+|===
+

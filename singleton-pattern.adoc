@@ -1,0 +1,62 @@
+= Pattern: Singleton Pattern
+:source-highlighter: highlight.js
+Anıl Şenocak <senocakanil@gmail.com>
+2.0, April 16, 2024
+:toc:
+:nofooter:
+:icons: font
+:url-quickref: https://github.com/senocak/tutorials/tree/master/
+
+== Amaç
+Bazı durumlarda bir sınıftan birden fazla nesne oluşturulmasına gerek yoktur.
+
+== Açıklama
+Örneğin; uygulama katmanımızın veri tabanına bağlantısını yöneten sınıftan birden fazla nesne oluşturmaya gerek yoktur. Her çağıran için bu sınıftan ayrı ayrı nesne oluşturmak uygulama verimliliğini düşürecektir. `Singleton deseni` ilgili sınıftan birden fazla nesne oluşturulmasının önüne geçmiş oluruz.
+
+[source,kotlin]
+----
+class MySingleton private constructor() {
+    init {
+        println(message = "Singleton instance initialized")
+    }
+    companion object {
+        val instance: MySingleton by lazy { MySingleton() }
+    }
+    fun printHasCode() = println(message = hashCode())
+}
+
+fun main() {
+    MySingleton.instance.also { it.printHasCode() }
+    //MySingleton() // Cannot access '<init>': it is private in 'MySingleton'
+    MySingleton.instance.also { it.printHasCode() }
+}
+/*
+Singleton instance initialized
+2074407503
+2074407503
+ */
+----
+== Uygulanabilirlik
+Singleton modelini;
+
+1. Bir sınıfın tam olarak bir örneği olmalı ve iyi bilinen bir erişim noktasından erişilebilir olmalı olduğunda,
+2. Tek örnek alt sınıflandırma yoluyla genişletilebilir olduğunda ve alt sınıflar kodlarını değiştirmeden genişletilmiş bir örnek kullanmak istediğinde kullanılmalıdır.
+
+
+== Tipik Kullanım Durumu
+1. Loglama sınıflarında,
+2. Veritabanı bağlantı yönetmede,
+3. Dosya yönetmede
+
+== Gerçek örnekler
+1. java.lang.Runtime#getRuntime()
+2. java.awt.Desktop#getDesktop()
+3. java.lang.System#getSecurityManager()
+
+==  Sonuçlar
+
+- Kendi yaratımını ve yaşam döngüsünü kontrol ederek Single Responsibility Principle (SRP) ihlal ediyor.
+- Tightly coupled kod oluşturur. Singleton client'ların testi zorlaşır.
+- Bir Singleton'ı alt sınıflara ayırmayı neredeyse imkansız hale getirir.
+
+link:examples/singleton-pattern.kt[singleton-pattern.kt]
