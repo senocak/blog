@@ -16,8 +16,6 @@ Anıl Şenocak <senocakanil@gmail.com>
 :toclevels: 3
 :xrefstyle: short
 :nofooter:
-// URIs:
-:url-quickref: https://github.com/senocak/tutorials/tree/master/
 
 [%notitle]
 --

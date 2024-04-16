@@ -1,0 +1,70 @@
+= Java: Mockito: doReturn vs thenReturn
+:source-highlighter: highlight.js
+Anıl Şenocak <senocakanil@gmail.com>
+2.0, April 16, 2024
+:description: when-thenReturn ve doReturn-when arasındaki farklar
+:organization: Personal
+:doctype: book
+:preface-title: Preface
+// Settings:
+:experimental:
+:reproducible:
+:icons: font
+:listing-caption: Listing
+:sectnums:
+:toc:
+:toclevels: 3
+:xrefstyle: short
+:nofooter:
+
+[%notitle]
+--
+[abstract]
+{description}
+--
+
+== Açıklama
+Mockito'da, bir metod çağrıldığında ne döndürüleceğini belirtebiliriz. Bu, mevcut sınıfları değiştirmemiz gerekmediğinden unit testleri kolaylaştırır. Mockito, bunu yapmanın iki yolunu destekler: `when-thenReturn` ve `doReturn-when`.
+
+image:images/mockito-doreturn-vs-thenreturn.png[mockito-doreturn-vs-thenreturn]
+
+== Örnek
+[source,kotlin]
+----
+private val userService: UserService = mock<UserService>()
+whenever(methodCall = userService.findByEmail(email = loginRequest.email)).thenReturn(user)
+----
+Çoğu durumda, when-thenReturn kullanılır ve daha iyi okunabilirliğe sahiptir. Ancak, bazen farklı davranışlar olduğu için doReturn-when kullanmayı düşünmemiz gerekir.
+
+== Tip güvenliği
+`doReturn` parametresi, `thenReturn` 'den farklı olarak Object'tir. Bu nedenle, derleme zamanında tür denetimi yoktur. Çalışma zamanında tür eşleşmediğinde, bir `WrongTypeOfReturnValue` exception fırlatır.
+
+[source,kotlin]
+----
+// Derlenme zamanında hata olup olmadığını tip değeri ile kontrol etmez.
+doReturn(value = user).`when`(userService).save(user = any())
+// Hata varsa çalışma zamanında hata fırlatılır.
+----
+[source,kotlin]
+----
+// Derlenme zamanında hata olup olmadığını tip değeri ile kontrol eder.
+whenever(methodCall = userService.save(user = any())).thenReturn("user")
+// Örnek olarak save metodu string değil obje dönmeli olduğu için kod derlenmez
+----
+`when-thenReturn` 'ün mümkünse daha iyi bir seçenek olmasının ana nedeni budur.
+`whenever-thenReturn` yukarıdakinin kotlin karşılığı.
+
+== Yan etkisi
+Tip güvenliği olmamasına rağmen doReturn-when'ın avantajı yan etkisi olmamasıdır. Mockito'da, gerçek yöntem çağrısına bir yan etki olur. Bunu anlamak için, gerçek bir metot çağırmanın ne zaman gerçekleştiğini bilmemiz gerekir.
+
+Genellikle, bir dönüş değeri belirtmeden önce Mockito.mock ile bir mock nesne oluşturmamız gerekir. Mock nesnenin bir yöntemini çağırdığımızda, belirtilen bir değer döndürür ancak sınıfta tanımladığınız hiçbir şeyi yapmaz. Hiçbir yan etkisi yoktur, bu nedenle when-thenReturn ve doReturn-when'ün bir tür güvenliği olması dışında hemen hemen aynı şekilde davranır.
+
+== Fark
+`Spy` ile bir spy oluşturduğunuzda ortaya çıkar. Bir spy nesne gerçek bir nesneye bağlanır. Bu nedenle, bir yöntemi çağırdığınızda gerçek bir yöntem çağrısı vardır. Bu, `when-thenReturn` yaptığımızda bile geçerlidir. Bunun nedeni when parametresidir ve bir yöntemi çağırmanın bir yolunu içerir. Örneğin; user.getName(). Buna karşılık, doReturn-when kullandığınızda when parametresi yalnızca user olduğunda geçerlidir.
+
+link:mockito-at-spy.adoc[spy]
+
+== Sonuç
+- `when-thenReturn` belirtilen değer döndürülmeden hemen önce gerçek bir metod çağrısı yapar. Yani çağrılan metod bir exception atarsa, onunla uğraşmamız gerekir.
+- `doReturn-when` metod çağrısı yapmaz.
+
