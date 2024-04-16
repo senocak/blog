@@ -28,5 +28,6 @@ TIP: While it is common to find https://spring.io/projects/spring-boot[Spring Bo
 |link:junit-5-vs-junit-4[JUnit 5 vs JUnit 4] | JUnit 5, Java 8 kodlama stilini uyarlamayı ve JUnit 4'ten daha sağlam ve esnek olmayı amaçlamaktadır.
 |link:mockito-at-spy[Mockito: @Spy] | Gerçek nesnenin sadece belirtilen metodları mock kodu tarafından override edilir.
 |link:mockito-doreturn-vs-thenreturn[Mockito: doReturn vs thenReturn] | when-thenReturn ve doReturn-when arasındaki farklar
+|link:comparable-vs-comparator[Comparable vs Comparator] | Comparable and Comparator are interfaces used for sorting objects.
 |===
 
