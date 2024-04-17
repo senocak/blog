@@ -1,0 +1,89 @@
+= Kotlin: Regex
+:source-highlighter: highlight.js
+Anıl Şenocak <senocakanil@gmail.com>
+2.0, April 16, 2024
+:description: Düzenli ifadeler
+:organization: Personal
+:doctype: book
+:preface-title: Preface
+// Settings:
+:experimental:
+:reproducible:
+:icons: font
+:listing-caption: Listing
+:sectnums:
+:toc:
+:toclevels: 3
+:xrefstyle: short
+:nofooter:
+// URIs:
+:url-quickref: https://github.com/senocak/tutorials/tree/master/
+
+[%notitle]
+--
+[abstract]
+{description}
+--
+
+== Açıklama
+Metinde arama yapmak için kullanılan bir metin kalıbıdır.
+
+Örneğin, bir string'te e-posta adresleri, URL'ler, telefon numaraları, tarihler vb. için aramak için normal bir ifade kullanabilirsiniz. Bu, Dize ile farklı normal ifadeleri eşleştirerek yapılabilir.
+
+- true / false: Normal ifadenin metinle eşleşip eşleşmediğini belirtir.
+- Bir eşleşme kümesi: Metinde bulunan normal ifadenin her oluşumu için bir eşleşme.
+
+== Core Sınıfları
+- Pattern (kotlin.text.Pattern)
+- Extension function `String.toRegex()` (kotlin.text)
+
+Pattern sınıfı, pattern(normal ifadeler) oluşturmak için kullanılır. Bir kalıp, kendisini bir metinle eşleştirebilen, nesne biçiminde önceden derlenmiş düzenli ifadedir.
+
+[source,kotlin]
+----
+val regex1 = Regex(pattern = "a[bc]+d?")
+val regex2 = "a[bc]+d?".toRegex()
+val regex3 = Regex.fromLiteral(literal = "a[bc]+d?")
+val regex4 = """a[bc]+d?\W""".toRegex()
+----
+
+== Matching Options
+Hem Regex hemde toRegex methodları aşağıdaki matching opsiyonlarını uygulayabilir
+[source,kotlin]
+----
+val regex1 = Regex("a(b|c)+d?", RegexOption.CANON_EQ)
+val regex2 = Regex("a(b|c)+d?", setOf(RegexOption.DOT_MATCHES_ALL, RegexOption.COMMENTS))
+val regex3 = "a(b|c)+d?".toRegex(option = RegexOption.MULTILINE)
+val regex4 = "a(b|c)+d?".toRegex(options = setOf(RegexOption.IGNORE_CASE, RegexOption.COMMENTS, RegexOption.UNIX_LINES))
+----
+
+== Matching
+Hem Regex hemde toRegex methodları aşağıdaki matching opsiyonlarını uygulayabilir
+[source,kotlin]
+----
+fun main() {
+    val regex = """a([bc]+)d?""".toRegex()
+    println(message = regex.containsMatchIn(input = "xabcdy")) // true
+    println(message = regex.matches(input = "abcd")) // true
+    println(message = regex matches "xabcdy") // false
+
+    var matchResult = regex.matchEntire(input = "abbccbbd")
+    println(message = matchResult?.value) // abbccbbd
+    matchResult = regex.find(input = "abcbabbd")
+    println(message = matchResult?.value) // abcb
+    val matchResults = regex.findAll(input = "abcb abbd")
+    matchResults.toList().forEach { print(message = "${it.value},") } // abcb,abbd,
+}
+----
+
+== Java Interoperability
+Düzenli ifademizi Java koduna veya `java.util.regex.Pattern` örneğini bekleyen başka bir JVM dili API'sine aktarmamız gerekirse, Regex'imizi kolayca dönüştürebiliriz
+
+[source,kotlin]
+----
+fun main() {
+    val pattern: Pattern = """a([bc]+)d?""".toPattern()
+}
+----
+
+link:examples/regex.kt[regex.kt]
