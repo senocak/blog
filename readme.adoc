@@ -3,7 +3,7 @@
 :icons: font
 :url-quickref: https://github.com/senocak/blog
 
-TIP: İnternette https://spring.io/[Spring Boot], https://kotlinlang.org/[Kotlin], https://java.com/[Java] eğitimleri bulmak yaygın olsa da, güncel olan ve uygulamayı göstermek ve kararlılığı sağlamak için otomatik testler içeren eğitimler bulmak zordur.
+TIP: İnternette https://spring.io/[Spring Boot], https://kotlinlang.org/[Kotlin], https://java.com/[Java] eğitimleri bulmak yaygın olsa da, güncel olan ve kendimin zaman içinde sorduğu soruların cevaplarını derledim.
 
 == Patterns
 
