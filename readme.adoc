@@ -10,13 +10,13 @@ TIP: While it is common to find https://spring.io/projects/spring-boot[Spring Bo
 |===
 |Topic |Description
 
-|link:api-gateway-pattern[API Gateway Pattern] |The API gateway acts as a single entry point for clients to access the microservices, allowing clients to interact with the microservices as if they were a single service.
-|link:abstract-document-pattern[Abstract Document Pattern] |An object-oriented structural design pattern for organizing objects in loosely typed key-value stores and exposing the data using typed views.
-|link:singleton-pattern[Singleton Pattern] |Restricts the instantiation of a class and ensures that only one instance of the class exists in the Java Virtual Machine
-|link:builder-pattern[Builder Pattern] |To provide a flexible solution to various object creation problems in oop.
-|link:cache-aside-pattern[Cache Aside Pattern] |Loads data into the cache on demand.
-|link:producer-consumer-pattern[Producer Consumer Pattern] | Amacı işin tanımlanması ile işin yürütülmesi'ni ayırarak Producer ve Consumer arasındaki bağlantıyı azaltan klasik bir eşzamanlılık modelidir.
-|link:solid[SOLID] | Single responsibility, Open/Closed, Liskov Substitution, Interface Segregation, Dependency inversion
+|link:api-gateway-pattern.adoc[API Gateway Pattern] |The API gateway acts as a single entry point for clients to access the microservices, allowing clients to interact with the microservices as if they were a single service.
+|link:abstract-document-pattern.adoc[Abstract Document Pattern] |An object-oriented structural design pattern for organizing objects in loosely typed key-value stores and exposing the data using typed views.
+|link:singleton-pattern.adoc[Singleton Pattern] |Restricts the instantiation of a class and ensures that only one instance of the class exists in the Java Virtual Machine
+|link:builder-pattern.adoc[Builder Pattern] |To provide a flexible solution to various object creation problems in oop.
+|link:cache-aside-pattern.adoc[Cache Aside Pattern] |Loads data into the cache on demand.
+|link:producer-consumer-pattern.adoc[Producer Consumer Pattern] | Amacı işin tanımlanması ile işin yürütülmesi'ni ayırarak Producer ve Consumer arasındaki bağlantıyı azaltan klasik bir eşzamanlılık modelidir.
+|link:solid.adoc[SOLID] | Single responsibility, Open/Closed, Liskov Substitution, Interface Segregation, Dependency inversion
 |===
 
 
@@ -25,13 +25,13 @@ TIP: While it is common to find https://spring.io/projects/spring-boot[Spring Bo
 |===
 |Topic |Description
 
-|link:junit-5-vs-junit-4[JUnit 5 vs JUnit 4] | JUnit 5, Java 8 kodlama stilini uyarlamayı ve JUnit 4'ten daha sağlam ve esnek olmayı amaçlamaktadır.
-|link:mockito-at-spy[Mockito: @Spy] | Gerçek nesnenin sadece belirtilen metodları mock kodu tarafından override edilir.
-|link:mockito-doreturn-vs-thenreturn[Mockito: doReturn vs thenReturn] | when-thenReturn ve doReturn-when arasındaki farklar
-|link:comparable-vs-comparator[Comparable vs Comparator] | Comparable and Comparator are interfaces used for sorting objects.
-|link:stringbuilder-vs-stringbuffer[Stringbuilder vs Stringbuffer] | String ile setlenmiş değişkenler daha sonradan değiştirilemez, bu ne demek eğer değişken'in içeriği sonradan değiştirilirse artık bu aynı obje olamayacaktır.
-|link:function-interface[Function Interface] | Represents a function that accepts one argument and produces a result.
-|link:anonymous-inner-class[Anonymous Inner Class] | Adı olmayan ve kendisi için yalnızca tek bir nesnenin oluşturulduğu bir iç sınıftır.
+|link:junit-5-vs-junit-4.adoc[JUnit 5 vs JUnit 4] | JUnit 5, Java 8 kodlama stilini uyarlamayı ve JUnit 4'ten daha sağlam ve esnek olmayı amaçlamaktadır.
+|link:mockito-at-spy.adoc[Mockito: @Spy] | Gerçek nesnenin sadece belirtilen metodları mock kodu tarafından override edilir.
+|link:mockito-doreturn-vs-thenreturn.adoc[Mockito: doReturn vs thenReturn] | when-thenReturn ve doReturn-when arasındaki farklar
+|link:comparable-vs-comparator.adoc[Comparable vs Comparator] | Comparable and Comparator are interfaces used for sorting objects.
+|link:stringbuilder-vs-stringbuffer.adoc[Stringbuilder vs Stringbuffer] | String ile setlenmiş değişkenler daha sonradan değiştirilemez, bu ne demek eğer değişken'in içeriği sonradan değiştirilirse artık bu aynı obje olamayacaktır.
+|link:function-interface.adoc[Function Interface] | Represents a function that accepts one argument and produces a result.
+|link:anonymous-inner-class.adoc[Anonymous Inner Class] | Adı olmayan ve kendisi için yalnızca tek bir nesnenin oluşturulduğu bir iç sınıftır.
 |link:kotlin-regex.adoc[Kotlin Regex] | Kotlin Düzenli ifadeler
 
 |===
