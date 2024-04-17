@@ -1,0 +1,82 @@
+= Java: Collections vs Streams
+:source-highlighter: highlight.js
+Anıl Şenocak <senocakanil@gmail.com>
+2.0, April 16, 2024
+:description: Her ikisi de kavramsal olarak iki farklı amaç için kullanılan iki farklı şeydir. Verileri depolamak için collection'lar kullanılır, bu veriler üzerinde işlemler gerçekleştirmek için stream'ler kullanılır.
+:organization: Personal
+:doctype: book
+:preface-title: Preface
+// Settings:
+:experimental:
+:reproducible:
+:icons: font
+:listing-caption: Listing
+:sectnums:
+:toc:
+:toclevels: 3
+:xrefstyle: short
+:nofooter:
+
+[%notitle]
+--
+[abstract]
+{description}
+--
+
+== Kavramsal Fark
+Collection'lar, verileri `List`, `Set` veya `Map` gibi belirli bir veri yapısında depolamak ve gruplamak için kullanılır. Ancak stream'ler, `array`, `collection` veya `I/O` kaynakları gibi depolanan veriler üzerinde filtering, matching, mapping vb. gibi karmaşık veri işleme işlemlerini gerçekleştirmek için kullanılır. Bu, collection'ların esas olarak verilerle, stream'lerin ise esas olarak veriler üzerindeki işlemlerle ilgili olduğu anlamına gelir.
+
+[source,kotlin]
+----
+fun main() {
+    //Collection'lar genel olarak verileri tutmak için kullanılır
+    val names = arrayListOf("Ornek", "Collection", "Stream")
+
+    //Stream'ler genel olarak veiler üzerinde işlem yapmak için kullanılır
+    names.stream().forEach { x: String -> println(message = x) }
+    //names.forEach { x: String -> println(message = x) }
+}
+----
+
+== Veri Değişikliği
+Collection'lara öğe ekleyebilir veya kaldırabiliriz, ancak streams'lere öğe ekleyemez veya çıkaramayız. Stream bir kaynağı tüketir, üzerinde işlemler gerçekleştirir ve bir sonuç döndürür.
+
+== External Iteration Vs Internal Iteration
+Java 8 Streams'in ana özelliği, akışları kullanırken yineleme konusunda endişelenmemize gerek olmamasıdır. Akışlar bizim için sahne arkasında dahili olarak yineleme gerçekleştirir. Bir kaynak üzerinde yapılacak işlemlerden bahsetmemiz yeterlidir. Öte yandan, yinelemeyi döngüler kullanarak koleksiyonlar üzerinde harici olarak yapmamız gerekir.
+
+[source,kotlin]
+----
+fun main() {
+    println(message = "\n----------External Iteration")
+    for (x in names)
+        print(message = "$x,") // Ornek,Collection,Stream,
+    println(message = "\n----------Internal Iteration")
+    names.stream().map { it.uppercase() }.forEach { x: String -> print(message = "$x,") } // ORNEK,COLLECTION,STREAM,
+}
+----
+
+== Geçiş
+Akışlar yalnızca bir kez geçilebilir. Akışı bir kez geçilirse, tüketildiği söylenilir. Tekrar geçmek için kaynaktan tekrar yeni akış almak gerekir. Ancak, koleksiyonlar birden çok kez geçilebilir.
+[source,kotlin]
+----
+fun main() {
+    val names = arrayListOf("Ornek", "Collection", "Stream")
+    val numbersGreaterThan5 = names.stream()
+    numbersGreaterThan5.forEach { print(message = "$it,") } // Ornek,Collection,Stream,
+    numbersGreaterThan5.forEach { print(message = "$it,") } //IllegalStateException : stream has already been operated upon or closed
+}
+----
+
+== Sonuç
+|===
+|Collections    |   Streams
+
+|Verileri depolamak ve gruplamak için kullanılır.   |Veriler üzerinde işlem yapmak için kullanılır.
+|Koleksiyonlardan öğeler ekleyebilir veya kaldırabilirsiniz.    |Akışlardan öğe ekleyemez veya kaldıramazsınız.
+|Harici olarak yinelenmelidir.  |Dahili olarak yinelenir.
+|Birden çok kez geçilebilir.    |Yalnızca bir kez geçilebilir.
+|Eagerly oluşturulur.	|Lazy oluşturulur.
+|Örnek: List, Set, Map…	|Örnek: filtering, mapping, matching…
+|===
+
+link:examples/collections-vs-streams.kt[collections-vs-streams.kt]
