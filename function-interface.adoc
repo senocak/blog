@@ -1,0 +1,184 @@
+= Java: Function Interface
+:source-highlighter: highlight.js
+Anıl Şenocak <senocakanil@gmail.com>
+2.0, April 16, 2024
+:description: Represents a function that accepts one argument and produces a result.
+:organization: Personal
+:doctype: book
+:preface-title: Preface
+// Settings:
+:experimental:
+:reproducible:
+:icons: font
+:listing-caption: Listing
+:sectnums:
+:toc:
+:toclevels: 3
+:xrefstyle: short
+:nofooter:
+// URIs:
+:url-quickref: https://github.com/senocak/tutorials/tree/master/
+
+[%notitle]
+--
+[abstract]
+{description}
+--
+
+== Açıklama
+Java'da functional programlama uygulamak için Java 8'den beri tanıtılan java.util.function paketinin bir parçasıdır. Bir argümanı alan ve bir sonuç üreten bir işlevi temsil eder.
+Dolayısıyla, 2 generic parametre alır:
+
+- `T`: giriş argümanının türünü belirtir
+- `R`: işlevin dönüş türünü belirtir.
+
+Function türündeki bir nesneye atanan lambda ifadesi, verilen işlevi bağımsız değişkene uygulayan apply() öğesini tanımlamak için kullanılır.
+
+== Fonksiyon Arayüzünde Yöntemler
+=== apply()
+Bu yöntem, verilen işlevi tek argümanına uygular.
+
+[source,java]
+----
+R apply(T t);
+----
+
+==== Parametreler
+Bu yöntem, işlev argümanı olan yalnızca bir `t` parametresini alır.
+
+==== Return
+Bu yöntem, R türündeki function sonucunu döndürür.
+
+[source,java]
+----
+import java.util.function.Function;
+
+class OrnekSinif {
+    public static void main(String[] args) {
+        Function<Integer, Double> half = a -> a / 2.0;
+        System.out.println(half.apply(10));
+        // 5.0
+    }
+}
+----
+
+=== andThen()
+Parametreli işlevin ilkinden sonra yürütüleceği oluşturulmuş bir işlev döndürür. Herhangi bir fonksiyonun değerlendirilmesi bir hata verirse, oluşturulan fonksiyonun çağıranına iletilir.
+
+[source,java]
+----
+default <V> Function<T, V> andThen(Function<? super R, ? extends V> after);
+----
+
+burada `V`, fonksiyondan sonra oluşturulan işlevin çıktı tipidir.
+
+==== Parametreler
+Bu yöntem, geçerli olandan sonra uygulanacak olan bir parametreyi kabul eder.
+
+==== Return
+Bu yöntem, önce geçerli işlevi, ardından sonraki işlevi uygulayan birleştirilmiş bir işlev(composed function) döndürür.
+
+[source,java]
+----
+import java.util.function.Function;
+
+class OrnekSinif {
+    public static void main(String[] args) {
+        Function<Integer, Double> half = a -> a / 2.0;
+        half = half.andThen(a -> 3 * a);
+        System.out.println(half.apply(10));
+        // 15.0
+    }
+}
+----
+==== Exception
+After işlevi boşsa, bu yöntem NullPointerException öğesini atar.
+
+[source,java]
+----
+import java.util.function.Function;
+
+class OrnekSinif {
+    public static void main(String[] args) {
+        Function<Integer, Double> half = a -> a / 2.0;
+        try {
+            half = half.andThen(null);
+        } catch (Exception e) {
+            System.out.println("Exception thrown while passing null: " + e);
+        }
+    }
+}
+// Exception thrown while passing null: java.lang.NullPointerException
+----
+
+=== compose()
+Parametreli işlevin önce yürütüleceği, ardından ilk bulunanın yürütüleceği bir işlev döndürür. Herhangi bir fonksiyonun değerlendirilmesi bir hata verirse, oluşturulan fonksiyonun çağıranına iletilir.
+
+[source,java]
+----
+default <V> Function<V, R> compose(Function<? super V, ? extends T> before);
+----
+
+burada `V`, önceki işlevin ve oluşturulan işlevin girdi tipidir.
+
+==== Parametreler
+Bu yöntem, önce uygulanacak olanı sonra da geçerli olan bir parametreyi kabul eder.
+
+==== Return
+Bu yöntem, parametreleştirilmiş işlevden sonra geçerli işlevi uygulayan composed function döndürür.
+
+[source,java]
+----
+import java.util.function.Function;
+
+class OrnekSinif {
+    public static void main(String[] args) {
+        Function<Integer, Double> half = a -> a / 2.0;
+        half = half.compose(a -> 3 * a);
+        System.out.println(half.apply(5));
+        // 7.5
+    }
+}
+----
+==== Exception
+Before işlevi boşsa, bu yöntem NullPointerException öğesini atar.
+
+[source,java]
+----
+import java.util.function.Function;
+
+class OrnekSinif {
+    public static void main(String[] args) {
+        Function<Integer, Double> half = a -> a / 2.0;
+        try {
+            half = half.compose(null);
+        } catch (Exception e) {
+            System.out.println("Exception thrown while passing null: " + e);
+        }
+    }
+}
+// Exception thrown while passing null: java.lang.NullPointerException
+----
+
+=== identity()
+Bu yöntem, tek argümanını döndüren bir işlev döndürür.
+[source,java]
+----
+static <T> Function<T, T> identity();
+----
+burada `T`, argümanın türünü ve döndürülecek değeri belirtir
+
+==== Return
+Bu yöntem, kendi bağımsız değişkenini döndüren bir function döndürür.
+[source,java]
+----
+import java.util.function.Function;
+
+class OrnekSinif {
+    public static void main(String[] args) {
+        Function i = Function.identity();
+        System.out.println(i);
+    }
+}
+// java.util.function.Function$$Lambda$1/1910163204@7d6f77cc
+----

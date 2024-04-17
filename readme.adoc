@@ -30,6 +30,7 @@ TIP: While it is common to find https://spring.io/projects/spring-boot[Spring Bo
 |link:mockito-doreturn-vs-thenreturn[Mockito: doReturn vs thenReturn] | when-thenReturn ve doReturn-when arasındaki farklar
 |link:comparable-vs-comparator[Comparable vs Comparator] | Comparable and Comparator are interfaces used for sorting objects.
 |link:stringbuilder-vs-stringbuffer[Stringbuilder vs Stringbuffer] | String ile setlenmiş değişkenler daha sonradan değiştirilemez, bu ne demek eğer değişken'in içeriği sonradan değiştirilirse artık bu aynı obje olamayacaktır.
+|link:function-interface[Function Interface] | Represents a function that accepts one argument and produces a result.
 
 |===
 
