@@ -1,7 +1,5 @@
 package examples
 
-import java.util.regex.Pattern
-
 fun main() {
     println(message = "-------------------------Matching")
     var regex = """a([bc]+)d?""".toRegex()
