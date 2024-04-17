@@ -1,0 +1,98 @@
+= Java: Anonymous Inner Class
+:source-highlighter: highlight.js
+Anıl Şenocak <senocakanil@gmail.com>
+2.0, April 16, 2024
+:description: Adı olmayan ve kendisi için yalnızca tek bir nesnenin oluşturulduğu bir iç sınıftır.
+:organization: Personal
+:doctype: book
+:preface-title: Preface
+// Settings:
+:experimental:
+:reproducible:
+:icons: font
+:listing-caption: Listing
+:sectnums:
+:toc:
+:toclevels: 3
+:xrefstyle: short
+:nofooter:
+// URIs:
+:url-quickref: https://github.com/senocak/tutorials/tree/master/
+
+[%notitle]
+--
+[abstract]
+{description}
+--
+
+== Açıklama
+Adı olmayan ve kendisi için yalnızca tek bir nesnenin oluşturulduğu bir iç sınıftır. Bir sınıfın veya arabirimin aşırı yükleme yöntemleri gibi belirli "ekstralar" ile bir nesnenin örneğini, aslında bir sınıfı alt sınıflamaya gerek kalmadan oluştururken yararlı olabilir. 2 şekilde oluşturulur:
+
+- Sınıf (soyut veya somut olabilir)
+- Interface
+
+Bir kod bloğunda yer alan bir sınıf tanımı olması dışında, bir constructor'ın çağrılması gibidir.
+
+[source,kotlin]
+----
+internal interface Yas {
+    val yas: Int
+        get() = 21
+}
+
+class Sinif : Yas {
+    override val yas: Int
+        get() = 23
+}
+fun main() {
+    val sinif = Sinif()
+    println(message = "Yaş: ${sinif.yas}")
+    // Yaş: 23
+
+    val yas: Yas = object : Yas {
+        override val yas: Int
+            get() = 24
+    }
+    println(message = "Yaş: ${yas.yas}")
+    // Yaş: 24
+}
+----
+
+=== Bir sınıfı extends eden
+Örneğin, bir Thread sınıfını extend ederek bir iş parçacığı oluşturabiliriz. Diyelim ki acil bir iş parçacığına ihtiyacımız var, ancak Thread sınıfını her zaman genişleten bir sınıf oluşturmak istemiyoruz. Bu tür `Anonymous Inner class` yardımıyla hazır bir iş parçacığını aşağıdaki gibi tanımlayabiliriz
+
+[source,kotlin]
+----
+fun main() {
+    val t: Thread = object : Thread() {
+        override fun run() = println(message = "Child Thread")
+    }
+    t.start()
+    println(message = "Main Thread")
+    //Main Thread
+    //Child Thread
+}
+----
+
+=== Bir interface'i implement eden
+Örneğin, Runnable arabirimini uygulayarak bir Thread oluşturabileceğimizi de biliyoruz. Burada bir arabirim uygulayan anonim İç sınıf kullanıyoruz.
+=== Bir sınıfı extends eden
+Örneğin, bir Thread sınıfını extend ederek bir iş parçacığı oluşturabiliriz. Diyelim ki acil bir iş parçacığına ihtiyacımız var, ancak Thread sınıfını her zaman genişleten bir sınıf oluşturmak istemiyoruz. Bu tür `Anonymous Inner class` yardımıyla hazır bir iş parçacığını aşağıdaki gibi tanımlayabiliriz
+
+[source,kotlin]
+----
+fun main() {
+    val r = Runnable { println(message = "Runnable Child Thread") }
+    Thread(r).start()
+    println(message = "Main Thread")
+    //Main Thread
+    //Runnable Child Thread
+}
+----
+
+== Normal class vs Anonymous Inner class
+- Normal bir sınıf herhangi bir sayıda interface uygulayabilir, ancak anonymous inner sınıf aynı anda yalnızca bir interface uygulayabilir.
+- Normal bir sınıf, bir sınıfı genişletebilir ve aynı anda herhangi bir sayıda interface uygulayabilir. Ancak anonymous inner sınıf, bir sınıfı genişletebilir veya bir interface uygulayabilir, ancak her ikisini birden uygulayamaz.
+- Normal sınıf için herhangi bir sayıda yapıcı yazabiliriz, ancak anonymous inner sınıf için herhangi bir yapıcı metod yazamayız çünkü anonymous sınıfın herhangi bir adı yoktur ve yapıcı sınıfı tanımlarken yapıcı sınıf adı ile yapıcı adı aynı olmalıdır.
+
+link:examples/anonymous-inner-class.kt[anonymous-inner-class.kt]
