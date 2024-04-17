@@ -26,8 +26,6 @@ Anıl Şenocak <senocakanil@gmail.com>
 == Açıklama
 Mockito'da, bir metod çağrıldığında ne döndürüleceğini belirtebiliriz. Bu, mevcut sınıfları değiştirmemiz gerekmediğinden unit testleri kolaylaştırır. Mockito, bunu yapmanın iki yolunu destekler: `when-thenReturn` ve `doReturn-when`.
 
-image:images/mockito-doreturn-vs-thenreturn.png[mockito-doreturn-vs-thenreturn]
-
 == Örnek
 [source,kotlin]
 ----
