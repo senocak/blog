@@ -3,7 +3,7 @@
 :icons: font
 :url-quickref: https://github.com/senocak/blog
 
-TIP: While it is common to find https://spring.io/projects/spring-boot[Spring Boot] tutorials on the Internet, it is challenging to find tutorials that are up-to-date and include automated tests to demonstrate the implementation and ensure stability.
+TIP: İnternette https://spring.io/[Spring Boot], https://kotlinlang.org/[Kotlin], https://java.com/[Java] eğitimleri bulmak yaygın olsa da, güncel olan ve uygulamayı göstermek ve kararlılığı sağlamak için otomatik testler içeren eğitimler bulmak zordur.
 
 == Patterns
 
