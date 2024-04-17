@@ -1,0 +1,117 @@
+= Java: StringBuilder vs StringBuffer
+:source-highlighter: highlight.js
+Anıl Şenocak <senocakanil@gmail.com>
+2.0, April 16, 2024
+:description: String ile setlenmiş değişkenler daha sonradan değiştirilemez, bu ne demek eğer değişken'in içeriği sonradan değiştirilirse artık bu aynı obje olamayacaktır.
+:organization: Personal
+:doctype: book
+:preface-title: Preface
+// Settings:
+:experimental:
+:reproducible:
+:icons: font
+:listing-caption: Listing
+:sectnums:
+:toc:
+:toclevels: 3
+:xrefstyle: short
+:nofooter:
+
+[%notitle]
+--
+[abstract]
+{description}
+--
+
+[source,kotlin]
+----
+fun main() {
+    var s = "bir"
+    println(message = s.hashCode())
+    s = "iki"
+    println(message = s.hashCode())
+    //97547
+    //104327
+}
+----
+
+Çıktıya bakılınca ikisi farklı objeyi refer ediyor. Peki objeyi yeniden yaratmadan içeriğini nasıl değiştiririz?
+
+== StringBuffer
+`Thread-safe` ve değiştirilebilir bir karakter dizisidir. String gibidir, ancak değiştirilebilir. Dizinin uzunluğu ve içeriği belirli metodlar ile değiştirilebilir.
+
+Birden çok iş parçacığı tarafından kullanım için güvenlidir. Metodlar gerektiğinde senkronize edilir, böylece herhangi bir belirli instance'daki tüm işlemler, ilgili her bir iş parçacığı tarafından yapılan yöntem çağrılarının sırası ile tutarlı olan bir seri sırayla gerçekleşiyormuş gibi davranır.
+
+Bir StringBuffer üzerindeki temel işlemler, herhangi bir türden veriyi kabul etmek için `append` ve `insert` yöntemleri vardır. Her biri, belirli bir veriyi bir dizgeye etkili bir şekilde dönüştürüp ardından o dizginin karakterlerini string'in arabelleğine ekler. append yöntemi her zaman bu karakterleri arabelleğin sonuna ekler; insert yöntemi, karakterleri belirtilen bir noktada ekler.
+
+[source,kotlin]
+----
+fun main() {
+    var stringBuffer1 = StringBuffer("üç")
+    println(message = "$stringBuffer1 -> ${stringBuffer1.hashCode()}")
+    stringBuffer1 = stringBuffer1.append("dört")
+    println(message = "$stringBuffer1 -> ${stringBuffer1.hashCode()}")
+    stringBuffer1 = stringBuffer1.insert(5, "beş")
+    println(message = "$stringBuffer1 -> ${stringBuffer1.hashCode()}")
+    //üç -> 1670782018
+    //üçdört -> 1670782018
+    //üçdörbeşt -> 1670782018
+}
+----
+
+TIP: Örneğin, içeriği #üç# olan bir string buffer nesnesine, `append("dört")` yöntem çağrısı dize arabelleğinin #üçdört# olmadına neden olurken, `insert(5, "dört")` ise #üçdörbeşt# içerecek şekilde olacaktır.
+
+Her StringBuffer'ın kapasitesi vardır. StringBuffer'da bulunan karakter dizisinin uzunluğu kapasiteyi aşmadığı sürece, yeni bir dahili arabellek dizisi tahsis etmek gerekli değildir. Dahili arabellek taşarsa, otomatik olarak büyütülür.
+
+== StringBuilder
+Değişken bir karakter dizisidir. Bu sınıf, StringBuffer ile uyumlu bir API sağlar, ancak senkronizasyon garantisi yoktur. Bu sınıf, StringBuffer'ın tek bir iş parçacığı tarafından kullanıldığı yerlerde StringBuffer için bir yedek olarak kullanılmak üzere tasarlanmıştır. Mümkün olduğunda, çoğu uygulamada daha hızlı olacağı için bu sınıfın StringBuffer yerine kullanılması önerilir.
+
+Bir StringBuilder üzerindeki temel işlemler, herhangi bir türden veriyi kabul etmek için `append` ve `insert` yöntemleridir. Her biri, belirli bir veriyi bir dizgeye etkili bir şekilde dönüştürür ve ardından bu dizgenin karakterlerini string builder'a ekler. append yöntemi her zaman bu karakterleri oluşturucunun sonuna ekler; insert yöntemi, karakterleri belirtilen bir noktada ekler.
+
+[source,kotlin]
+----
+fun main() {
+    var stringBuilder1 = StringBuilder("altı")
+    println(message = "$stringBuilder1 -> ${stringBuilder1.hashCode()}")
+    stringBuilder1 = stringBuilder1.append("yedi")
+    println(message = "$stringBuilder1 -> ${stringBuilder1.hashCode()}")
+    stringBuilder1 = stringBuilder1.insert(5, "sekiz")
+    println(message = "$stringBuilder1 -> ${stringBuilder1.hashCode()}")
+    //altı -> 989110044
+    //altıyedi -> 989110044
+    //altıysekizedi -> 989110044
+}
+----
+
+Örneğin, içeriği #altı# olan bir eleman, string builder nesnesine `append("yedi")` metodu, string builder'ı #altıyedi# içermesine neden olurken, `insert(5, "sekiz")`, #altıysekizedi# olacak şekilde değiştirir.
+
+Her StringBuilder'ın bir kapasitesi vardır. StringBuilder'da bulunan karakter dizisinin uzunluğu kapasiteyi aşmadığı sürece, yeni bir dahili arabellek tahsis etmek gerekli değildir. Dahili arabellek taşarsa, otomatik olarak büyütülür. StringBuilder örnekleri, birden çok iş parçacığı tarafından kullanım için güvenli değildir. Böyle bir senkronizasyon gerekliyse, StringBuffer kullanılması tavsiye edilir.
+
+== Sonuç
+- StringBuffer, Java 1.4, StringBuilder Java 1.5 sürümlerinde tanıtıldı.
+- StringBuffer sınıfının senkronize edilmiş bir yöntemi vardır, ancak StringBuilder sınıfının senkronize edilmiş bir yöntemi yoktur.
+- StringBuffer thread-safe'dir ancak StringBuilder değildir.
+- StringBuffer sınıfı, StringBuilder sınıfından daha yavaştır.
+
+[source,kotlin]
+----
+fun main() {
+    measureTimeMillis {
+        val strbuffer = StringBuffer("Hello")
+        for (i in 0..100_000) {
+            strbuffer.append(i)
+        }
+    }.also { println("StringBuffer Geçen Süre: $it ms") }
+
+    measureTimeMillis {
+        val strbuffer = StringBuilder("Hello")
+        for (i in 0..100_000) {
+            strbuffer.append(i)
+        }
+    }.also { println("StringBuilder Geçen Süre: $it ms") }
+    // StringBuffer Geçen Süre: 5 ms
+    // StringBuilder Geçen Süre: 3 ms
+}
+----
+
+link:examples/stringbuilder-vs-stringbuffer.kt[stringbuilder-vs-stringbuffer.kt]
