@@ -1,4 +1,4 @@
-= Kotlin / Java / SpringBoot
+= BLOG
 :nofooter:
 :icons: font
 :url-quickref: https://github.com/senocak/blog
