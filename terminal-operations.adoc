@@ -1,0 +1,223 @@
+= Java: Terminal Operations
+:source-highlighter: highlight.js
+Anıl Şenocak <senocakanil@gmail.com>
+2.0, April 16, 2024
+:description: Bir terminal işlemi Stream başlatır ve Stream ardışık düzenine ve içeriğine bağlı bir sonuç döndürür.
+:organization: Personal
+:doctype: book
+:preface-title: Preface
+// Settings:
+:experimental:
+:reproducible:
+:icons: font
+:listing-caption: Listing
+:sectnums:
+:toc:
+:toclevels: 3
+:xrefstyle: short
+:nofooter:
+
+[%notitle]
+--
+[abstract]
+{description}
+--
+
+== allMatch()
+Akıştaki tüm öğeler sağlanan bir yüklemle eşleşirse true döndürür, aksi takdirde false döndürür. Bu bir kısa devre terminal işlemidir, çünkü eşleşmeyen herhangi bir eleman bulunursa işlem hemen durur (tıpkı AND operatörünün kısa devre davranışı gibi).
+[source,kotlin]
+----
+fun main() {
+    mutableListOf(3, 4, 6, 12, 20)
+        .apply {
+            this.stream().allMatch { n: Int -> n % 3 == 0 }.also { println(message = "allMatch: $it") } // allMatch: false
+        }
+}
+----
+
+== anyMatch()
+Akıştaki herhangi bir öğe sağlanan bir değer ile eşleşirse true döndürür.
+[source,kotlin]
+----
+fun main() {
+    mutableListOf(3, 4, 6, 12, 20)
+        .apply {
+            this.stream().anyMatch { n: Int -> n % 3 == 0 }.also { println(message = "anyMatch: $it") } // anyMatch: true
+        }
+}
+----
+
+== noneMatch()
+Akıştaki hiçbir öğe sağlanan bir değer ile eşleşmezse true değerini döndürür.
+[source,kotlin]
+----
+fun main() {
+    mutableListOf(3, 4, 6, 12, 20)
+        .apply {
+            this.stream().noneMatch { n: Int -> n % 21 == 0 }.also { println(message = "noneMatch: $it") } // anyMatch: true
+        }
+}
+----
+
+== collect()
+Bir akıştaki öğeleri koleksiyon gibi bir kapsayıcıda toplar. İşlenmiş değerin ArrayList gibi değişken bir sonuç kapsayıcısı olduğu değişken azaltma işlemini gerçekleştirir. Bu yöntem, yararlı azaltma işlemleri sağlayan bir Collector uygulaması alır. Collectors sınıfı, JDK'da yaygın bir uygulamadır.
+[source,kotlin]
+----
+fun main() {
+    mutableListOf(3, 4, 6, 12, 20)
+        .apply {
+            this.stream().allMatch { n: Int -> n % 3 == 0 }.also { println(message = "allMatch: $it") } // allMatch: false
+            this.stream().anyMatch { n: Int -> n % 3 == 0 }.also { println(message = "anyMatch: $it") } // anyMatch: true
+            this.stream().noneMatch { n: Int -> n % 21 == 0 }.also { println(message = "noneMatch: $it") } // anyMatch: true
+            this.stream().filter { it > 9 }.collect(Collectors.toList()).also { println(message = "collect: $it") } // collect: [12, 20]
+        }
+}
+----
+
+== count()
+Akıştaki toplam öğe sayısını döndürür.
+[source,kotlin]
+----
+fun main() {
+    mutableListOf(3, 4, 6, 12, 20)
+        .apply {
+            this.stream().count().also { println(message = "count: $it") } // count: 3
+        }
+}
+----
+
+== forEach()
+Akıştaki her öğe için bir eylem gerçekleştirir.
+[source,kotlin]
+----
+fun main() {
+    mutableListOf(3, 4, 6, 12, 20)
+        .apply {
+            this.stream().forEach { x: Int -> print(message = "$x,") } // 3,4,6,12,20,
+        }
+}
+----
+
+== max()
+Sağlanan karşılaştırıcıya göre akıştaki maxiumum öğeyi döndüren özel bir azaltma işlemidir.
+[source,kotlin]
+----
+fun main() {
+    mutableListOf(3, 4, 6, 12, 20)
+        .apply {
+            this.stream().max { x: Int, y: Int -> x.compareTo(other = y) }.get().also { println(message = "max: $it") } // max: 20
+        }
+}
+----
+
+== reduce()
+Akıştaki her öğeye bir ikili işleç uygular; burada işleç için ilk argüman önceki uygulamanın dönüş değeridir ve ikinci argüman geçerli akış öğesidir. Sağlanan karşılaştırıcıya göre akıştaki maxiumum öğeyi döndüren özel bir azaltma işlemidir.
+[source,kotlin]
+----
+fun main() {
+    mutableListOf(3, 4, 6, 12, 20)
+        .apply {
+            this.stream().reduce { x: Int, y: Int -> if (x < y) x else y }.ifPresent { println(message = "reduce: $it") } // reduce: 3
+        }
+}
+----
+
+== filter()
+Belirli bir Tahminle(Predicate) eşleşen bir akışın öğelerini filtrelememize izin veren Stream interface'ini implement etmiş bir intermediate ara işlemidir, verilen input ile eşleşen akışın öğelerinden oluşan bir akış döndürür.
+
+== map()
+Verilen işlevin bu stream öğelerine uygulanmasının sonuçlarından oluşan bir stream döndürür.
+[source,kotlin]
+----
+fun main() {
+    mutableListOf(3, 4, 6, 12, 20)
+        .apply {
+            this.stream().map { it + 1}.collect(Collectors.toList()).also { println(message = "map: $it") } // map: [4, 5, 7, 13, 21]
+        }
+}
+----
+Burada map fonksiyonu, Function türünden değişken alır. Fonksiyon, functional interface'dir ve bir apply() metoduna sahiptir. Bu yöntem bir değer alır ve başka bir değer döndürür.  map() sarmalayıcı türleri de ara intermediate oprerasyon kategorisine girer.
+
+`mapToDouble()` `mapToLong()` `mapToInt()` gibi türleri de implement edilmiştir.
+
+== flatMap()
+Bir koleksiyon listesi için en iyi sonucu verir. Örneği iki listeyle ve bunların flatmap() yöntemini kullanarak tek bir akışa nasıl dönüştürüleceğini göstereceğiz.
+[source,kotlin]
+----
+fun main() {
+    mutableListOf(3, 4, 6, 12, 20)
+        .apply {
+            this.stream().map { "$it+${it + 1}" }.flatMap { line -> Stream.of(line.split('+')) }.toList().also { println(message = "flatMap: $it") } // flatMap: [[3, 4], [4, 5], [6, 7], [12, 13], [20, 21]]
+        }
+}
+----
+`flatMapToInt()` `flatMapToLong()` `flatMapToDouble()` gibi türleri de implement edilmiştir.
+
+== distinct()
+Bu akışın farklı öğelerinden (Object.equals(Object)'e göre) oluşan bir akış döndürür.
+[source,kotlin]
+----
+fun main() {
+    mutableListOf(3, 4, 6, 12, 20, 20)
+        .apply {
+            this.stream().distinct().toList().also { println(message = "distinct: $it") } // distinct: [3, 4, 6, 12, 20]
+        }
+}
+----
+
+== sorted()
+Doğal sıraya göre sıralanmış bu akışın öğelerinden oluşan bir akış döndürür. Bu akışın öğeleri Comparable değilse, terminal işlemi yürütüldüğünde bir java.lang.ClassCastException oluşturulabilir.
+
+TIP: Sıralı akışlar için sıralama sabittir. Sırasız akışlar için kararlılık garantisi verilmez.
+[source,kotlin]
+----
+fun main() {
+    mutableListOf(3, 4, 6, 12, 20, 20)
+        .apply {
+            this.stream().distinct().toList().also { println(message = "distinct: $it") } // distinct: [3, 4, 6, 12, 20]
+        }
+}
+----
+
+== peek()
+Bu akışın öğelerinden oluşan bir akış döndürür, ayrıca elde edilen akıştan öğeler tüketilirken her öğe üzerinde sağlanan eylemi gerçekleştirir. peek() yöntemi, Java 8'deki akışlarda hata ayıklamanın en iyi yoludur.
+
+TIP: stream pipeline için peek() çağırma sırasını tahmin edemeyiz.
+[source,kotlin]
+----
+fun main() {
+    mutableListOf("Ornek", "stream", "sort")
+        .apply {
+            this.stream().filter { it.length > 2 }.peek { print("peek: $it,") }.map { it.uppercase() }.toList() // peek: Ornek,peek: stream,peek: sort,
+        }
+}
+----
+
+== limit()
+Verilen sınırlı boyutta bir akış döndürür. Akıştan kalan öğeleri kesecektir.
+
+TIP: limit() sıralı akışlar için uygundur ve paralel akışlar için iyi performans sonuçları veremez.
+[source,kotlin]
+----
+fun main() {
+    mutableListOf("Ornek", "stream", "sort")
+        .apply {
+            this.stream().limit(2).toList().also { println(message = "limit: $it") } // limit: [Ornek, stream]
+        }
+}
+----
+
+== skip()
+Verilen n öğesini atlar ve bir Stream döndürür. Bu, bir Liste'de veya Akıştaki son n kayıt'ta veya satır üzerinde herhangi bir işlem yapmak istediğinizde en kullanışlı olanıdır.
+[source,kotlin]
+----
+fun main() {
+    mutableListOf("Ornek", "stream", "sort")
+        .apply {
+            this.stream().skip(2).toList().also { println(message = "skip: $it") } // skip: [sort]
+        }
+}
+----
+
+
+link:examples/terminal-operations.kt[terminal-operations.kt]

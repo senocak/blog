@@ -34,4 +34,5 @@ TIP: İnternette https://spring.io/[Spring Boot], https://kotlinlang.org/[Kotlin
 |link:anonymous-inner-class.adoc[Anonymous Inner Class] | Adı olmayan ve kendisi için yalnızca tek bir nesnenin oluşturulduğu bir iç sınıftır.
 |link:kotlin-regex.adoc[Kotlin Regex] | Kotlin Düzenli ifadeler
 |link:collections-vs-streams.adoc[Collections vs Streams] | Her ikisi de kavramsal olarak iki farklı amaç için kullanılan iki farklı şeydir.
+|link:terminal-operations.adoc[Terminal Operations] | Bir terminal işlemi Stream başlatır ve Stream ardışık düzenine ve içeriğine bağlı bir sonuç döndürür.
 |===
