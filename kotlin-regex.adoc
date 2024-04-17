@@ -76,6 +76,24 @@ fun main() {
 }
 ----
 
+== Sınırlar
+Bir dizgedeki sınırları(boundaries) da eşleştirebiliriz. Sınır, bir dizenin başı, bir dizenin sonu, bir kelimenin başlangıcı vb. olabilir.
+
+
+|===
+|Sembol |Açıklama
+
+| ^	 |  Satırın başlangıcı
+| $	 |  Satırın sonu
+| \b |  Bir kelime sınırı (bir kelimenin başladığı veya bittiği yer, örneğin boşluk, sekme vb.).
+| \B | 	Sözcük olmayan bir sınır.
+| \A | 	Girişin başlangıcı
+| \G | 	Önceki eşleşmenin sonu
+| \Z | 	Girişin sonu, ancak son sonlandırıcı için (varsa).
+| \z |  Satır Başı (veya Dize)
+
+|===
+
 == Java Interoperability
 Düzenli ifademizi Java koduna veya `java.util.regex.Pattern` örneğini bekleyen başka bir JVM dili API'sine aktarmamız gerekirse, Regex'imizi kolayca dönüştürebiliriz
 
