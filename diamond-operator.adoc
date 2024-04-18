@@ -1,0 +1,94 @@
+= Java: Diamond;Generics
+:source-highlighter: highlight.js
+Anıl Şenocak <senocakanil@gmail.com>
+2.0, April 16, 2024
+:description: Diamond Operator derleyiciye tür çıkarımı özelliğini ekler ve jeneriklerle sunulan atamalardaki karmaşıklığı azaltır.
+:organization: Personal
+:doctype: book
+:preface-title: Preface
+// Settings:
+:experimental:
+:reproducible:
+:icons: font
+:listing-caption: Listing
+:sectnums:
+:toc:
+:toclevels: 3
+:xrefstyle: short
+:nofooter:
+
+[%notitle]
+--
+[abstract]
+{description}
+--
+
+== Process
+Java 1.5'ten önce, Koleksiyonlar API'si yalnızca ham türleri destekliyordu ve bir koleksiyon oluştururken tür bağımsız değişkenlerinin parametreleştirilmesinin bir yolu yoktu:
+[source,java]
+----
+public static void main(String[] args){
+    List cars = new ArrayList();
+    cars.add(new Object());
+    cars.add("car");
+    cars.add(1);
+}
+----
+Bu, herhangi bir türün eklenmesine izin verir ve çalışma zamanında olası runtime exceptionlara yol açar.
+[source,kotlin]
+----
+fun main() {
+    val cars = arrayListOf<Any>()
+    cars.add(Any())
+    cars.add("car")
+    cars.add(1)
+}
+----
+
+== Generics
+Java 1.5'te, Nesneleri bildirirken ve oluştururken Koleksiyonlar API'sindekiler de dahil olmak üzere sınıflar için tür bağımsız değişkenlerini parametreleştirmemize izin veren Generics tanıtıldı:
+[source,java]
+----
+List<String> cars = new ArrayList<String>();
+----
+Bu noktada, nesne üretilirken bir şekilde okunamayan parametreleştirilmiş türü belirtmemiz gerekir:
+[source,java]
+----
+Map<String, List<Map<String, Map<String, Integer>>>> cars = new HashMap<String, List<Map<String, Map<String, Integer>>>>();
+----
+Bu yaklaşımın nedeni, geriye dönük uyumluluk adına ham türlerin hâlâ mevcut olmasıdır, bu nedenle derleyicinin bu ham türler ile generic'ler arasında ayrım yapması gerekir:
+[source,java]
+----
+List<String> generics = new ArrayList<String>();
+List<String> raws = new ArrayList();
+----
+Derleyici hala nesne üretilirken ham türleri kullanmamıza izin verse de, bize bir uyarı mesajı gönderecektir:
+
+== Diamond Operator
+Java 1.7'de tanıtılan diamond operatörü, tür çıkarımı ekler ve generic kullanırken atamalardaki ayrıntı düzeyini azaltır:
+[source,java]
+----
+List<String> cars = new ArrayList<>();
+----
+Java 1.7 derleyicisinin tür çıkarımı özelliği, çağrıyla eşleşen en uygun oluşturucu bildirimini belirler.
+
+[source,java]
+----
+public interface Motor { }
+public class Dizel implements Motor { }
+public interface Tasit<T extends Motor> { }
+public class Araba<T extends Motor> implements Tasit<T> { }
+----
+
+[source,kotlin]
+----
+interface Interface1
+class Class1: Interface1
+interface Class2<T: Interface1>
+class Class3<T: Interface1> : Class2<T>
+
+// Diamond operatörünü kullanarak yeni bir Araba örneği oluşturalım:
+fun main() {
+    val class1: Class3<Class1> = Class3()
+}
+----
