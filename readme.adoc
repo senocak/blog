@@ -43,4 +43,5 @@ TIP: Bütün örnekler java ile uyumlu çalışan kotlin ile yazılmaya özen g�
 |link:diamond-operator.adoc[Diamond Operator] | Diamond Operator derleyiciye tür çıkarımı özelliğini ekler ve jeneriklerle sunulan atamalardaki karmaşıklığı azaltır.
 |link:runnable-vs-callable.adoc[Runnable vs Callable] | Runnuable ve Callable bir görevi farklı bir Thread ile çalıştırmak için kullanılan iki interface'dir.
 |link:lambda-expressions.adoc[Lambda Expressions] | Lambda ifadesi, parametre alan ve bir değer döndüren kısa bir kod bloğudur.
+|link:optional-sinifi.adoc[Optional Sinifi] | Java 8 ile birlikte hayatımıza giren en önemli özelliklerden biri olan Optional sınıfında null referanslar yerine isteğe bağlı değerleri göstermek için iyi bir çözüm sunmaktadır.
 |===

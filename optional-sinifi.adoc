@@ -1,0 +1,92 @@
+= Java: Optional Sınıfı
+:source-highlighter: highlight.js
+Anıl Şenocak <senocakanil@gmail.com>
+2.0, April 16, 2024
+:description: Java 8 ile birlikte hayatımıza giren en önemli özelliklerden biri olan Optional sınıfında null referanslar yerine isteğe bağlı değerleri göstermek için iyi bir çözüm sunmaktadır.
+:organization: Personal
+:doctype: book
+:preface-title: Preface
+// Settings:
+:experimental:
+:reproducible:
+:icons: font
+:listing-caption: Listing
+:sectnums:
+:toc:
+:toclevels: 3
+:xrefstyle: short
+:nofooter:
+
+[%notitle]
+--
+[abstract]
+{description}
+--
+== Giriş
+Optional sınıfı `java.util` paketine aittir.
+[source,kotlin]
+----
+fun main() {
+    val empty: Optional<*> = Optional.empty<Any>()
+    val present = empty.isPresent
+    val anil = Optional.of("anil")
+    val nullable = Optional.ofNullable<String>(null)
+    nullable.ifPresent { println(message = it) }
+    val result = nullable.orElse("The Coders")
+    val result2 = nullable.orElseGet { "The Coders" }
+    val result3 = nullable.orElseThrow { IllegalArgumentException() }
+    val result4 = nullable.get()
+}
+----
+Yukarıda gördüğünüz üzere basitçe Optional sınıfının `empty()` metodunu kullanarak boş bir Optional nesnesi oluşturuldu. Bir Optional nesnesi üzerinde herhangi bir değer olup, olmadığını şu şekilde öğreniyoruz.
+
+`isPresent()` metodunu kullanarak herhangi bir Optional nesnesi üzerinde bir değer olup, olmadığını kontrol edebiliriz. Sonuç olarak üzerinde henüz herhangi bir değer olmadığı için bize false dönecektir. Ayrıca Optional tipinde olmayan bir nesneyi Optional tipine çevirebilmemiz mümkün.
+
+Fakat bazı durumlarda null olan nesnelere de bu işlemi uygulayabilmemiz gerekiyor. Bunun için `Optional.ofNullable()` metodunu kullanabiliriz. Aksi halde `NullPointerException` hatasıyla karşılaşabiliriz.
+
+Optional sınıfının en önemli özelliklerinden biri de `ifPresent` metodudur. Bu metod; Optional nesnesinin üzerinde herhangi bir değer tutulduğu zaman istenilen işlemlerin yapılmasına olanak sağlar.
+
+Bazen Optional nesnesi üzerinde herhangi bir değerin tutulup, tutulmadığının kontrolü yapılırken tutulmadığı durumdaki senaryoları tasarlayabilmemiz gerekiyor. Bunun için Optional sınıfının bize sunduğu çözümlere bakalım.
+
+- orElse()
+- orElseGet()
+- orElseThrow()
+
+== orElse()
+Eğer Optional nesnesi üzerinde herhangi bir değer tanımlı değilse bu durumda istediğimiz değeri dönebiliriz.
+[source,kotlin]
+----
+fun main() {
+    val nullable = Optional.ofNullable<String>(null)
+    val result = nullable.orElse("The Coders")
+}
+----
+
+== orElseGet()
+orElse() metoduna benzerdir. Eğer Optional nesnesi üzerinde herhangi bir değer tanımlı değilse bu durumda istediğimiz değeri orElse() deki gibi direk dönmek yerine functional interface kullanabiliriz.
+[source,kotlin]
+----
+fun main() {
+    val nullable = Optional.ofNullable<String>(null)
+    val result = nullable.orElseGet { "The Coders" }
+}
+----
+
+== orElseThrow()
+Eğer Optional nesnesi üzerinde herhangi bir değer tanımlı değilse bu durumda hata fırlatabiliriz.
+[source,kotlin]
+----
+fun main() {
+    val nullable = Optional.ofNullable<String>(null)
+    val result = nullable.orElseThrow { IllegalArgumentException() }
+}
+----
+Optional nesnesi içindeki değeri almak için kullanılan diğer bir yöntem ise get() metodudur.
+[source,kotlin]
+----
+fun main() {
+    nullable.ifPresent { println(message = it) }
+    val result = nullable.get()
+}
+----
+Fakat bu yöntemin bir dezavantajı vardır. Eğer Optional nesnesi üzerinde herhangi bir değer yoksa ve direkt olarak `get()` metodunu kullanırsak `NoSuchElementException` hatasını alırız.
