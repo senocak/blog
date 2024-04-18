@@ -114,4 +114,4 @@ fun main() {
 }
 ----
 
-link:examples/stringbuilder-vs-stringbuffer.kt[stringbuilder-vs-stringbuffer.kt]
+link:examples/src/main/kotlin/com/github/senocak/blog/stringbuilder-vs-stringbuffer.kt[stringbuilder-vs-stringbuffer.kt]

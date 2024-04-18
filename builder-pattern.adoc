@@ -85,4 +85,4 @@ fun main() {
 - Apache Camel builders
 - Apache Commons Option.Builder
 
-link:examples/builder-pattern.kt[builder-pattern.kt]
+link:examples/src/main/kotlin/com/github/senocak/blog/builder-pattern.kt[builder-pattern.kt]

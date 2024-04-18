@@ -1,0 +1,305 @@
+= Reflection
+:source-highlighter: highlight.js
+Anıl Şenocak <senocakanil@gmail.com>
+2.0, April 16, 2024
+:description:  Reflection, çalışma zamanında metodların, sınıfların ve arayüzlerin davranışını incelemek veya değiştirmek için kullanılan bir API'dir.
+:organization: Personal
+:doctype: book
+:preface-title: Preface
+// Settings:
+:experimental:
+:reproducible:
+:icons: font
+:listing-caption: Listing
+:sectnums:
+:toc:
+:toclevels: 3
+:xrefstyle: short
+:nofooter:
+
+[%notitle]
+--
+[abstract]
+{description}
+--
+
+== Açıklama
+Bir Java sınıfını kendi içinden inceleme ve değiştirme yeteneği kulağa pek hoş gelmeyebilir, ancak diğer programlama dillerinde bu özellik yoktur. Örneğin, bir Pascal, C veya C++ dillerinde, o program içinde tanımlanan işlevler hakkında bilgi edinmenin bir yolu yoktur.
+
+Reflection'ın somut bir kullanımı, yazılım bileşenlerinin bir builder aracılığıyla görsel olarak değiştirilebildiği JavaBeans'tedir. Bu tool, dinamik olarak yüklenirken Java bileşenlerinin(sınıflarının) özelliklerini elde etmek için yansıma kullanır.
+
+[source,kotlin]
+----
+package examples
+
+class OrnekSinif {
+    private fun ornekMetod1(p: Any?, x: Int): Int =
+        when (p) {
+            null -> throw NullPointerException()
+            else -> x
+        }
+    private fun ornekMetod2(): String = TODO()
+}
+
+fun main() {
+    try {
+        val c = Class.forName("examples.OrnekSinif")
+        for (method in c.declaredMethods)
+            println(message = method.toString())
+        //OrnekSinif::class.java.methods.forEach(::println)
+    } catch (e: Throwable) {
+        println("ERROR: ${e.message}")
+    }
+    //private final int examples.OrnekSinif.ornekMetod1(java.lang.Object,int)
+    //private final java.lang.String examples.OrnekSinif.ornekMetod2()
+}
+----
+Bu program, `Class.forName` kullanarak belirtilen sınıfı yükler ve ardından sınıfta tanımlanan yöntemlerin listesini almak için `getDeclaredMethods` 'u çağırır. `java.lang.reflect.Method`, tek bir sınıf yöntemini temsil eden bir sınıftır.
+
+Kotlin native reflection apisi ile;
+
+[source,kotlin]
+----
+class OrnekSinif {
+    private fun ornekMetod1(p: Any?, x: Int): Int =
+        when (p) {
+            null -> throw NullPointerException()
+            else -> x
+        }
+    private fun ornekMetod2(): String = TODO()
+}
+
+fun main() {
+    val kClass = OrnekSinif::class
+    println(message = kClass.members)
+    // [fun com.github.senocak.blog.OrnekSinif.ornekMetod1(kotlin.Any?, kotlin.Int): kotlin.Int, fun com.github.senocak.blog.OrnekSinif.ornekMetod2(): kotlin.String, fun com.github.senocak.blog.OrnekSinif.equals(kotlin.Any?): kotlin.Boolean, fun com.github.senocak.blog.OrnekSinif.hashCode(): kotlin.Int, fun com.github.senocak.blog.OrnekSinif.toString(): kotlin.String]
+}
+----
+
+== instanceof operatör
+Class bilgisi elde edildikten sonra, genellikle bir sonraki adım Class nesnesi hakkında temel sorular sormaktır. Örneğin, Class.isInstance yöntemi, instanceof operatörünü simüle etmek için kullanılabilir:
+
+[source,kotlin]
+----
+package com.github.senocak.blog
+
+class OrnekSinif {
+    private fun ornekMetod1(p: Any?, x: Int): Int =
+        when (p) {
+            null -> throw NullPointerException()
+            else -> x
+        }
+    private fun ornekMetod2(): String = TODO()
+}
+
+fun main() {
+    val c = Class.forName("com.github.senocak.blog.OrnekSinif")
+    println(message = c.isInstance(37)) // false
+    println(message = c.isInstance(OrnekSinif())) // true
+}
+----
+
+== Bir Sınıfın Metodlarını Bulma
+Reflection'ın en değerli ve temel kullanımlarından biri, bir sınıf içinde hangi yöntemlerin tanımlandığını bulmaktır. Bunu yapmak için aşağıdaki kod kullanılabilir:
+[source,kotlin]
+----
+package com.github.senocak.blog
+
+class OrnekSinif {
+    private fun ornekMetod1(p: Any?, x: Int): Int =
+        when (p) {
+            null -> throw NullPointerException()
+            else -> x
+        }
+    private fun ornekMetod2(): String = TODO()
+}
+
+fun main() {
+    val c = Class.forName("com.github.senocak.blog.OrnekSinif")
+    for (m in c.declaredMethods) {
+        println(message = "name = ${m.name}") // name = ornekMetod1
+        println(message = "declaringClass = ${m.declaringClass}") // declaringClass = class com.github.senocak.blog.OrnekSinif
+        m.parameterTypes.indices.toList().also { println(message = "parameterTypes: $it") }
+        m.exceptionTypes.indices.toList().also { println(message = "exceptionTypes: $it") }
+        println(message = "returnType = ${m.returnType}")
+    }
+    /*
+    ---------------------isInstance
+    name = ornekMetod1
+    declaringClass = class com.github.senocak.blog.OrnekSinif
+    parameterTypes: [0, 1]
+    exceptionTypes: []
+    returnType = int
+    name = ornekMetod2
+    declaringClass = class com.github.senocak.blog.OrnekSinif
+    parameterTypes: []
+    exceptionTypes: []
+    returnType = class java.lang.String
+    */
+}
+----
+
+== Yapıcılar Hakkında Bilgi
+Bir sınıfın kurucuları hakkında bilgi edinmek için benzer bir yaklaşım kullanılır. Örneğin:
+[source,kotlin]
+----
+package com.github.senocak.blog
+
+class OrnekSinif {
+    private fun ornekMetod1(p: Any?, x: Int): Int =
+        when (p) {
+            null -> throw NullPointerException()
+            else -> x
+        }
+    private fun ornekMetod2(): String = TODO()
+}
+
+fun main() {
+    val c = Class.forName("com.github.senocak.blog.OrnekSinif")
+    println(message = "---------------------declaredConstructors")
+    for (ct in c.declaredConstructors) {
+        println("name = ${ct.name}")
+        println("decl class = ${ct.declaringClass}")
+        ct.parameterTypes.indices.toList().also { println(message = "parameterTypes: $it") }
+        ct.exceptionTypes.indices.toList().also { println(message = "exceptionTypes: $it") }
+    }
+    /*
+    ---------------------declaredConstructors
+    name = com.github.senocak.blog.OrnekSinif
+    decl class = class com.github.senocak.blog.OrnekSinif
+    parameterTypes: []
+    exceptionTypes: []
+    */
+}
+----
+
+== Sınıf Alanlarını Öğrenmek
+Bir sınıfta hangi veri alanlarının tanımlandığını bulmak da mümkündür. Bunu yapmak için aşağıdaki kod kullanılabilir:
+[source,kotlin]
+----
+package com.github.senocak.blog
+
+import java.lang.reflect.Modifier
+
+class OrnekSinif {
+    private lateinit var yas: String
+    private fun ornekMetod1(p: Any?, x: Int): Int =
+        when (p) {
+            null -> throw NullPointerException()
+            else -> x
+        }
+    private fun ornekMetod2(): String = TODO()
+}
+
+fun main() {
+    val c = Class.forName("com.github.senocak.blog.OrnekSinif")
+    println(message = "---------------------declaredFields")
+    for (fld in c.declaredFields) {
+        println(message = "name = ${fld.name}")
+        println(message = "decl class = ${fld.declaringClass}")
+        println(message = "type = ${fld.type}")
+        println(message = "modifiers = " + Modifier.toString(fld.modifiers))
+    }
+    /*
+    ---------------------declaredFields
+    name = yas
+    decl class = class com.github.senocak.blog.OrnekSinif
+    type = class java.lang.String
+    modifiers = private
+    */
+}
+----
+
+== Ada Göre Yöntemleri Çağırma
+Şimdiye kadar sunulan örneklerin tümü, sınıf bilgilerinin elde edilmesiyle ilgilidir. Ancak reflection'ı başka şekillerde kullanmak da mümkündür, örneğin belirli bir isimde bir yöntemi çağırmak için.
+[source,kotlin]
+----
+import java.lang.reflect.Modifier
+import kotlin.reflect.KClass
+import kotlin.reflect.full.createInstance
+import kotlin.reflect.full.declaredMemberProperties
+import kotlin.reflect.full.functions
+import kotlin.reflect.jvm.isAccessible
+
+@Target(AnnotationTarget.PROPERTY, AnnotationTarget.FUNCTION, AnnotationTarget.TYPE)
+annotation class OrnekAnnotation
+
+class OrnekSinif {
+    constructor(name: String? = "anil", country: String? = "anil") {
+        println(message = "second constructor")
+    }
+
+    @OrnekAnnotation
+    private lateinit var yas: String
+    private fun ornekMetod1(p: Any?, x: Int): Int =
+        when (p) {
+            null -> throw NullPointerException()
+            else -> x
+        }
+    @OrnekAnnotation
+    private fun ornekMetod2(): String = TODO()
+}
+
+fun main() {
+    val c = OrnekSinif::class
+    println(message = "---------------------methodCallKotlin")
+    (c.functions.find { it.name == "ornekMetod1" } ?: throw NullPointerException())
+        .also {
+            it.isAccessible = true
+            println(message = "Result: ${it.call(c.createInstance(), "p", 5)}")
+        }
+    /*
+    ---------------------methodCallKotlin
+    second constructor
+    Result: 5
+    */
+}
+----
+Bir programın `ornekMetod1` yöntemini çağırmak istediğini, ancak runtime'a kadar bunu bilmediğini varsayalım. Yani, yöntemin adı yürütme sırasında belirtilir. Yukarıdaki program bunu yapmanın bir yolunu göstermektedir.
+
+ornekMetod1, sınıfta iki parametre türüne sahip ve uygun ada sahip bir yöntem bulmak için kullanılır. Bu yöntem bir kez bulunup bir Method nesnesi içinde yakalandıktan sonra, uygun türde bir nesne örneğine çağrılır.
+
+== Yeni Nesneler Oluşturma
+Yapıcılar için yöntem çağırmanın eşdeğeri yoktur, çünkü bir yapıcıyı çağırmak yeni bir nesne oluşturmaya eşdeğerdir (en kesin olmak gerekirse, yeni bir nesne oluşturmak hem bellek ayırmayı hem de nesne oluşturmayı içerir). Bu nedenle, önceki örneğe en yakın eşdeğer şunu söylemektir:
+[source,kotlin]
+----
+import java.lang.reflect.Modifier
+import kotlin.reflect.KClass
+import kotlin.reflect.full.createInstance
+import kotlin.reflect.full.declaredMemberProperties
+import kotlin.reflect.full.functions
+import kotlin.reflect.jvm.isAccessible
+
+@Target(AnnotationTarget.PROPERTY, AnnotationTarget.FUNCTION, AnnotationTarget.TYPE)
+annotation class OrnekAnnotation
+
+class OrnekSinif {
+    constructor(name: String? = "anil", country: String? = "anil") {
+        println(message = "second constructor")
+    }
+
+    @OrnekAnnotation
+    private lateinit var yas: String
+    private fun ornekMetod1(p: Any?, x: Int): Int =
+        when (p) {
+            null -> throw NullPointerException()
+            else -> x
+        }
+    @OrnekAnnotation
+    private fun ornekMetod2(): String = TODO()
+}
+
+fun main() {
+    val c = OrnekSinif::class
+    println(message = "---------------------createInstance")
+    println(message = "createInstance: ${c.createInstance()}")
+    /*
+    ---------------------createInstance
+    second constructor
+    createInstance: com.github.senocak.blog.OrnekSinif@448c8166
+    */
+}
+----
+
+
+link:examples/src/main/kotlin/com/github/senocak/blog/reflection.kt[reflection.kt]

@@ -1,4 +1,4 @@
-package examples
+package com.github.senocak.blog
 
 class MySingleton private constructor() {
     init {

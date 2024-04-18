@@ -1,4 +1,4 @@
-package examples
+package com.github.senocak.blog
 
 fun main() {
     //Collection'lar genel olarak verileri tutmak için kullanılır

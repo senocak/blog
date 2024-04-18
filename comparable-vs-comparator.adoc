@@ -133,4 +133,4 @@ val equalityComparator = Comparator<Person> { p1, p2 -> if (p1.name == p2.name &
 - Comparator'i yalnızca `<` esnekliğine ihtiyacımız olduğunda kullanabiliriz.
 - compareTo() yöntemi, ilk nesne diğerinden büyükse pozitif bir tamsayı, daha düşükse negatif ve her ikisi de aynıysa sıfır döndürür.
 
-link:examples/comparable-vs-comparator.kt[comparable-vs-comparator.kt]
+link:examples/src/main/kotlin/com/github/senocak/blog/comparable-vs-comparator.kt[comparable-vs-comparator.kt]

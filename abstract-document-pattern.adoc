@@ -119,7 +119,7 @@ Here is our car:
  */
 ----
 
-link:examples/abstract-document-pattern.kt[abstract-document-pattern.kt]
+link:examples/src/main/kotlin/com/github/senocak/blog/abstract-document-pattern.kt[abstract-document-pattern.kt]
 
 
 

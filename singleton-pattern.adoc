@@ -59,4 +59,4 @@ Singleton modelini;
 - Tightly coupled kod oluşturur. Singleton client'ların testi zorlaşır.
 - Bir Singleton'ı alt sınıflara ayırmayı neredeyse imkansız hale getirir.
 
-link:examples/singleton-pattern.kt[singleton-pattern.kt]
+link:examples/src/main/kotlin/com/github/senocak/blog/singleton-pattern.kt[singleton-pattern.kt]

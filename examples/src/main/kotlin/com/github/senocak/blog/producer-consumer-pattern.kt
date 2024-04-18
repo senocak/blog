@@ -1,4 +1,4 @@
-package examples
+package com.github.senocak.blog
 
 import java.util.concurrent.ArrayBlockingQueue
 

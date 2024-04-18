@@ -19,6 +19,8 @@ TIP: İnternette https://spring.io/[Spring Boot], https://kotlinlang.org/[Kotlin
 |link:solid.adoc[SOLID] | Single responsibility, Open/Closed, Liskov Substitution, Interface Segregation, Dependency inversion
 |===
 
+TIP: Bütün örnekler java ile uyumlu çalışan kotlin ile yazılmaya özen gösterilmiştir.
+
 
 == Java & Kotlin & SpringBoot
 
@@ -36,4 +38,5 @@ TIP: İnternette https://spring.io/[Spring Boot], https://kotlinlang.org/[Kotlin
 |link:collections-vs-streams.adoc[Collections vs Streams] | Her ikisi de kavramsal olarak iki farklı amaç için kullanılan iki farklı şeydir.
 |link:terminal-operations.adoc[Terminal Operations] | Bir terminal işlemi Stream başlatır ve Stream ardışık düzenine ve içeriğine bağlı bir sonuç döndürür.
 |link:intermediate-operations.adoc[Intermediate Operations] |  Ara işlevler bir akışı geri döndürür.
+|link:reflection.adoc[Reflection] | Reflection, çalışma zamanında metodların, sınıfların ve arayüzlerin davranışını incelemek veya değiştirmek için kullanılan bir API'dir.
 |===

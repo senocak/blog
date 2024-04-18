@@ -125,4 +125,4 @@ Producer 0 produced: 47
  */
 ----
 
-link:examples/producer-consumer-pattern.kt[producer-consumer-pattern]
+link:examples/src/main/kotlin/com/github/senocak/blog/producer-consumer-pattern.kt[producer-consumer-pattern]

@@ -79,4 +79,4 @@ fun main() {
 |Örnek: List, Set, Map…	|Örnek: filtering, mapping, matching…
 |===
 
-link:examples/collections-vs-streams.kt[collections-vs-streams.kt]
+link:examples/src/main/kotlin/com/github/senocak/blog/collections-vs-streams.kt[collections-vs-streams.kt]

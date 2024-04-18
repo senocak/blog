@@ -90,4 +90,4 @@ class ApiGateway(
 
 ----
 
-link:examples/api-gateway-pattern.kt[api-gateway-pattern.kt]
+link:examples/src/main/kotlin/com/github/senocak/blog/api-gateway-pattern.kt[api-gateway-pattern.kt]

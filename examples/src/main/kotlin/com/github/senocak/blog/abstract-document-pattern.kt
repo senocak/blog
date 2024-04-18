@@ -1,4 +1,4 @@
-package examples
+package com.github.senocak.blog
 
 interface Document {
     fun put(key: String, value: Any)

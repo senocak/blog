@@ -1,4 +1,4 @@
-package examples
+package com.github.senocak.blog
 
 fun main() {
     println(message = "Compare To 'a' b is : ${"a".compareTo(other = "b")}")

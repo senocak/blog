@@ -1,4 +1,4 @@
-package examples
+package com.github.senocak.blog
 
 class Araba private constructor(
     val marka: String,

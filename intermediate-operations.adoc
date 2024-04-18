@@ -129,4 +129,4 @@ fun main() {
 ----
 
 
-link:examples/terminal-operations.kt[terminal-operations.kt]
+link:examples/src/main/kotlin/com/github/senocak/blog/terminal-operations.kt[terminal-operations.kt]

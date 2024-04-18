@@ -104,4 +104,4 @@ fun main() {
 }
 ----
 
-link:examples/regex.kt[regex.kt]
+link:examples/src/main/kotlin/com/github/senocak/blog/regex.kt[regex.kt]
