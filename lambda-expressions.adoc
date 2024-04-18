@@ -1,0 +1,74 @@
+= Lambda Expressions
+:source-highlighter: highlight.js
+Anıl Şenocak <senocakanil@gmail.com>
+2.0, April 16, 2024
+:description: Lambda ifadesi, parametre alan ve bir değer döndüren kısa bir kod bloğudur.
+:organization: Personal
+:doctype: book
+:preface-title: Preface
+// Settings:
+:experimental:
+:reproducible:
+:icons: font
+:listing-caption: Listing
+:sectnums:
+:toc:
+:toclevels: 3
+:xrefstyle: short
+:nofooter:
+
+[%notitle]
+--
+[abstract]
+{description}
+--
+
+== Giriş
+Lambda Expressions Java 8'de eklendi. Lambda Expressions metodlara benzer, ancak bir isime ihtiyaç duymazlar ve doğrudan bir metodun gövdesinde uygulanabilirler.
+
+En basit olarak tek bir parametre ve bir ifade içerir:
+
+TIP: parameter -> expression
+
+Expressions sınırlıdır. Derhal bir değer döndürmeleri gerekir ve if veya for gibi değişkenler, atamalar veya ifadeler içeremezler. Daha karmaşık işlemler yapmak için küme parantezleri ile bir kod bloğu kullanılabilir. Lambda ifadesinin bir değer döndürmesi gerekiyorsa kod bloğunun bir return ifadesi olmalıdır.
+
+TIP: (parameter1, parameter2) -> { code block }
+
+Lambda expressions genellikle bir fonksiyona parametre olarak iletilir:  Listedeki her öğeyi yazdırmak için ArrayList'in forEach() yönteminde bir lambda ifadesi kullanalım:
+
+[source,kotlin]
+----
+fun main() {
+    arrayListOf(5, 9, 8, 1).forEach { print(message = "$it,") }
+}
+----
+
+Değişkenin türü yalnızca bir yöntemi olan bir interface ise, Lambda expression'lar değişkenlerde saklanabilir. O metodla aynı sayıda parametreye ve aynı dönüş türüne sahip olmalıdır. Java'da, listeler tarafından kullanılan Consumer interface (java.util paketinde bulunur) gibi bu tür interfacelerin çoğu yerleşik olarak bulunur.
+
+Bir değişkende lambda ifadesini depolamak için Java'nın Consumer interface'ini kullanın:
+
+[source,kotlin]
+----
+import java.util.function.Consumer
+
+fun main() {
+    val method: Consumer<Int> = Consumer { println(message = "$it,") }
+    arrayListOf(5, 9, 8, 1).forEach(method)
+}
+----
+Bir yöntemde lambda expression kullanmak için, metodun türü olarak single-method inteface'ine sahip bir parametreye sahip olması gerekir. Interface'in metodunu çağırmak lambda expression çalıştırır. Parametre olarak lambda expression alan bir yöntem oluşturalım:
+[source,java]
+----
+interface OrnekInterface {
+    String yaz(String str);
+}
+OrnekInterface metod1 = (s) -> s + "!";
+OrnekInterface metod2 = (s) -> s + "?";
+System.out.println(metod1.yaz("Merhaba1")); // Merhaba1!
+System.out.println(metod2.yaz("Merhaba2")); // Merhaba2?
+----
+
+
+
+
+
