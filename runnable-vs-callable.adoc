@@ -1,0 +1,94 @@
+= Runnable vs Callable
+:source-highlighter: highlight.js
+Anıl Şenocak <senocakanil@gmail.com>
+2.0, April 16, 2024
+:description: Runnuable ve Callable bir görevi farklı bir Thread ile çalıştırmak için kullanılan iki interface'dir.
+:organization: Personal
+:doctype: book
+:preface-title: Preface
+// Settings:
+:experimental:
+:reproducible:
+:icons: font
+:listing-caption: Listing
+:sectnums:
+:toc:
+:toclevels: 3
+:xrefstyle: short
+:nofooter:
+
+[%notitle]
+--
+[abstract]
+{description}
+--
+
+== Giriş
+`Callable` interface, `Runnable` interface'den daha yenidir ve Generics, Enum, Static imports ve variable argument method gibi diğer önemli değişikliklerle birlikte Java 5'e gelmiştir. Runnable, Java 1 ile gelmiştir.
+[source,java]
+----
+@FunctionalInterface
+public interface Runnable {
+    void run();
+}
+----
+[source,java]
+----
+@FunctionalInterface
+public interface Callable<V> {
+    V call() throws Exception;
+}
+----
+Hem Callable hem de Runnable interface'ler, herhangi bir iş parçacığı tarafından yürütülebilecek bir görevi temsil etmek üzere tasarlanmış olsa da, aralarında bazı önemli farklar vardır. Callable ve Runnable interface'ler arasındaki en büyük fark,
+
+- Runnable'ın `run()` yöntemi geri bir sonuç döndürmezken, Callable'nın `call()` yöntemi sonuç döndürür. Ek olarak call() yöntemi Exception oluşturarak işlemden çıkabilir. Runnable'nın run() yöntemi exception fırlatamaz.
+
+Callable, görev kuyruğuna koymak için `submit()` yöntemini kullanır, ancak Runnable, görev kuyruğuna koymak için `execute()` yöntemini kullanır.
+
+Callable ve Runnable arasındaki bir diğer önemli fark, checked exception'ları atma yeteneğidir.
+
+- Callable interface, checked exception fırlatabilir çünkü call() metodu exception fırlatır.
+[source,kotlin]
+----
+class WorkRunnable : Runnable {
+    override fun run() {
+        try {
+            println(message = "Task started")
+            Thread.sleep(1000)
+            Thread.currentThread()
+                .apply {
+                    println(message = "Thread ${this.name} with state ${this.state}")
+                }
+        } catch (e: InterruptedException) {
+            println(message = "InterruptedException ${e.message}")
+        }
+    }
+}
+//Task started
+//1 saniye bekler
+//Thread main with state RUNNABLE
+----
+[source,kotlin]
+----
+class WorkCallable : Callable<String> {
+    override fun call(): String {
+        try {
+            println(message = "Task started")
+            Thread.sleep(1000)
+            Thread.currentThread()
+                .apply {
+                    println(message = "Thread ${this.name} with state ${this.state}")
+                }
+        } catch (e: InterruptedException) {
+            println(message = "InterruptedException ${e.message}")
+        }
+        return "Task done"
+    }
+}
+//Task started
+//1 saniye bekler
+//Thread main with state RUNNABLE
+----
+Yukarıdaki 2 kod önce #Task started# yazıyor, 1 saniye bekliyor ve son olarak thread adı yazdırılıyor.
+
+Ancak bir farklılık vardır, sınıfı uyguladığınızda, geri dönen değişkenin türünü belirtmeniz gerekir. Bu örnekte Callable bir string döndürecektir, ancak tanımladığınız bir sınıf dahil olmak üzere istediğiniz herhangi bir türü döndürebilir.
