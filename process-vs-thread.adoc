@@ -1,0 +1,143 @@
+= Java: Process vs Thread
+:source-highlighter: highlight.js
+Anıl Şenocak <senocakanil@gmail.com>
+2.0, April 16, 2024
+:description: Process, yürütülmekte olan herhangi bir program anlamına gelir. Thread, bir sürecin bir bölümü anlamına gelir.
+:organization: Personal
+:doctype: book
+:preface-title: Preface
+// Settings:
+:experimental:
+:reproducible:
+:icons: font
+:listing-caption: Listing
+:sectnums:
+:toc:
+:toclevels: 3
+:xrefstyle: short
+:nofooter:
+
+[%notitle]
+--
+[abstract]
+{description}
+--
+
+== Process
+Process, bir programda belirtilen eylemleri gerçekleştirmenize izin veren bir programın yürütülmesidir. Bir programın çalıştığı yürütme birimi olarak tanımlanabilir. İşletim sistemi, CPU tarafından kullanılan süreçleri oluşturmanıza, planlamanıza ve sonlandırmanıza yardımcı olur. Ana process tarafından oluşturulan diğer süreçlere alt process denir.
+
+=== Özellikleri;
+- Her işlemin oluşturulması, her process için ayrı sistem çağrıları gerektirir.
+- İzole edilmiş bir yürütme varlığıdır ve veri ve bilgileri paylaşmaz.
+- Process'ler, sistem çağrılarının sayısını önemli ölçüde artıran iletişim için IPC(Inter-Process Communication / Süreçler Arası İletişim) mekanizmasını kullanır.
+- Process yönetimi daha fazla sistem çağrısı alır.
+- Bir process'in yığın belleği ve veri haritası olan stack'ı vardır.
+
+== Thread
+Thread, bir sürecin parçası olan bir yürütme birimidir. Bir işlem, tümü aynı anda yürütülen birden çok iş parçacığına sahip olabilir. Bir iş parçacığı hafiftir ve bir scheduler tarafından bağımsız olarak yönetilebilir. Paralelliği kullanarak uygulama performansını artırmanıza yardımcı olur. Birden çok iş parçacığı, veri, kod, dosyalar vb. gibi bilgileri paylaşır.
+
+- Çekirdek(Kernel) düzeyinde thread
+- Kullanıcı(User) düzeyinde thread
+- Hibrit thread
+
+=== Özellikleri;
+- Tek sistem çağrısı birden fazla thread oluşturabilir
+- Thread'ler veri ve bilgi paylaşır.
+- Thread'ler instruction, global ve heap bölgelerini paylaşır. Ancak kendisinin register ve stack'leri vardır.
+- Thread management consumes very few, or no system calls because of communication between threads that can be achieved using shared memory.
+- Thread yönetimi, paylaşılan bellek kullanılarak elde edilebilen iş parçacıkları arasındaki iletişim nedeniyle çok az sistem çağrısı tüketir veya hiç sistem çağrısı kullanmaz.
+
+=== Single Thread
+Single thread, temel olarak hafif ve en küçük işleme birimidir. Java, bir #Thread Class# kullanarak thread'leri yönetir. `user` ve `daemon` olan 2 adet thread vardır.(daemon, uygulamayı temizlemek istediğimizde kullanılır ve arka planda çalışır).
+
+Bir uygulama ilk başladığında, user thread oluşturulur.
+[source,kotlin]
+----
+fun main() {
+    println(message = "Single Thread")
+}
+----
+
+=== Multithreading
+Multithreading, bir işletim sistemi içinde birden çok yürütme iş parçacığını ifade eder. Basit bir ifadeyle, aynı işlemin iki veya daha fazla iş parçacığı aynı anda yürütülüyor.
+
+==== Avantajları:
+- Thread'ler bağımsız olduğundan, kullanıcılar engellenemez ve zaman zaman birden fazla işlem gerçekleştirebiliriz
+- Thread'ler bağımsız olduğundan, bir iş parçacığı bir exception ile karşılaşırsa diğer iş parçacıkları etkilenmez
+
+
+=== Thread Synchronization
+Multithreading işleminde, programların asenkron davranışı vardır. Bir thread veri yazıyorsa ve aynı anda veri okuyan başka bir thread varsa, uygulamada tutarsızlık yaratabilir. İki veya daha fazla iş parçacığı tarafından paylaşılan kaynaklara erişim ihtiyacı olduğunda, senkronizasyon yaklaşımı kullanılır.
+
+Java, senkronize davranışı uygulamak için senkronize yöntemler sağlamıştır. Bu yaklaşımda, iş parçacığı senkronize bloğun içine ulaştığında, aynı nesne üzerinde başka hiçbir iş parçacığı bu yöntemi çağıramaz. Tüm iş parçacıkları, bu iş parçacığı senkronize bloğu bitirip bundan çıkana kadar beklemek zorundadır.
+
+Bu şekilde, senkronizasyon çok iş parçacıklı bir uygulamada yardımcı olur. Bir iş parçacığı, diğer iş parçacığının yürütülmesini bitirene kadar beklemek zorundadır, ancak diğer iş parçacıklarının yürütülmesine izin verilir.
+[source,kotlin]
+----
+class Counter {
+    private var count = 0
+
+    // Method to increment the counter safely
+    fun increment() {
+        synchronized(this) {
+            count++
+            println(message = "Counter incremented: $count, ${Thread.currentThread().name}")
+        }
+    }
+
+    // Method to decrement the counter safely
+    fun decrement() {
+        synchronized(this) {
+            count--
+            println(message = "Counter decremented: $count, ${Thread.currentThread().name}")
+        }
+    }
+
+    // Method to get the current value of the counter
+    fun getCount(): Int {
+        synchronized(this) {
+            return count
+        }
+    }
+}
+
+fun main() {
+    val counter = Counter()
+
+    // Creating multiple threads to concurrently access and modify the counter
+    val thread1 = Thread { repeat(times = 5) { counter.increment() } }
+    val thread2 = Thread { repeat(times = 5) { counter.decrement() } }
+
+    thread1.start()
+    thread2.start()
+
+    thread1.join()
+    thread2.join()
+
+    println(message = "Final counter value: ${counter.getCount()}")
+}
+/*
+Counter incremented: 1, Thread-0
+Counter incremented: 2, Thread-0
+Counter incremented: 3, Thread-0
+Counter incremented: 4, Thread-0
+Counter incremented: 5, Thread-0
+Counter decremented: 4, Thread-1
+Counter decremented: 3, Thread-1
+Counter decremented: 2, Thread-1
+Counter decremented: 1, Thread-1
+Counter decremented: 0, Thread-1
+Final counter value: 0
+*/
+----
+
+== Ana Farklar
+- Process, bir programın yürütülmekte olduğu anlamına gelirken, thread bir process'in bir bölümü anlamına gelir.
+- Process'ler hafif değildir, oysa Thread'ler hafiftir.
+- Process'in sonlandırılması daha fazla zaman alır ve Thread'lerin sonlandırılması daha az zaman alır.
+- Process oluşturma için daha fazla zaman alırken, Thread oluşturma için daha az zaman alır.
+- Process, context switching için daha fazla zaman alırken, Threads'ler daha az zaman alır.
+- Process çoğunlukla yalıtılmıştır, oysa Thread'ler belleği paylaşır.
+- Process verileri paylaşmaz ve Thread'ler verileri birbirleriyle paylaşır.
+
+link:examples/src/main/kotlin/com/github/senocak/blog/process-vs-thread.kt[process-vs-thread]

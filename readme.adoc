@@ -39,4 +39,6 @@ TIP: Bütün örnekler java ile uyumlu çalışan kotlin ile yazılmaya özen g�
 |link:terminal-operations.adoc[Terminal Operations] | Bir terminal işlemi Stream başlatır ve Stream ardışık düzenine ve içeriğine bağlı bir sonuç döndürür.
 |link:intermediate-operations.adoc[Intermediate Operations] |  Ara işlevler bir akışı geri döndürür.
 |link:reflection.adoc[Reflection] | Reflection, çalışma zamanında metodların, sınıfların ve arayüzlerin davranışını incelemek veya değiştirmek için kullanılan bir API'dir.
+|link:process-vs-thread.adoc[Process vs Thread] | Process, yürütülmekte olan herhangi bir program anlamına gelir. Thread, bir sürecin bir bölümü anlamına gelir.
+
 |===
