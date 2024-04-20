@@ -1,0 +1,88 @@
+= Java: Throw vs Throws
+:source-highlighter: highlight.js
+Anıl Şenocak <senocakanil@gmail.com>
+2.0, April 16, 2024
+:description: Hem throw hem de throws, bir metodtan veya herhangi bir kod bloğundan açıkça bir exception atmak için kullanılan exception işleme kavramlarıdır
+:organization: Personal
+:doctype: book
+:preface-title: Preface
+// Settings:
+:experimental:
+:reproducible:
+:icons: font
+:listing-caption: Listing
+:sectnums:
+:toc:
+:toclevels: 3
+:xrefstyle: short
+:nofooter:
+
+[%notitle]
+--
+[abstract]
+{description}
+--
+== Giriş
+Yöntemin imzasında bu yöntemin listelenen tür istisnalarından birini atabileceğini belirtmek için throws kullanılır.   Aşağıdakiler, throw ve throws arasındaki önemli farklardır.
+|===
+| | throw | throws
+
+| Tanım | Programda bir işlev veya bir kod bloğu içinde açıkça bir istisna atmak için kullanılan bir anahtar sözcüktür. | Kod yürütülürken işlev tarafından atılabilecek bir istisna bildirmek için kullanılan yöntem imzasında kullanılan bir anahtar sözcüktür.
+| Dahili uygulama | Dahili throw, bir seferde yalnızca tek bir istisna atılmasına izin verildiği için uygulanır; yani, throw anahtar kelimesi ile birden fazla istisna atamayız. | Throws anahtar kelimesinin kullanıldığı fonksiyon tarafından atılabilecek olan throws anahtar kelimesi ile birden fazla istisna bildirebiliriz.
+| İstisna türü | Throw anahtar sözcüğü ile yalnızca kontrol edilmemiş istisnayı yayabiliriz, yani kontrol edilen istisna, throw kullanılarak yayılamaz. | Throws anahtar kelimesi ile hem kontrol edilen hem de kontrol edilmeyen istisnalar bildirilebilir ve yayılma kontrollü istisnalar için throws anahtar kelimesini ve ardından özel istisna sınıfı adını kullanmalıdır.
+
+|Tanımlama | Throw anahtar sözcüğünü kullanmak için, yöntem içinde throw anahtar sözcüğünün kullanıldığını bilmeliyiz. | Metod imzası ile birlikte throws anahtar sözcüğü kullanılır.
+|===
+
+[source,java]
+----
+public class OrnekSinif{
+   public void yasCek(int age){
+      if(age<18)
+         throw new ArithmeticException("exception oldu");
+     System.out.println("18den büyük");
+   }
+   public static void main(String[] args){
+      OrnekSinif obj = new OrnekSinif();
+      obj.yasCek(13);
+   }
+}
+// Exception in thread "main" java.lang.ArithmeticException: exception oldu
+// at OrnekSinif.checkAge(OrnekSinif.java:4)
+// at OrnekSinif.main(OrnekSinif.java:10)
+----
+
+[source,java]
+----
+public class OrnekSinif{
+   public int bolme(int a, int b) throws ArithmeticException {
+      return a/b;
+   }
+   public static void main(String[] args){
+      OrnekSinif obj = new OrnekSinif();
+      try{
+         System.out.println(obj.bolme(15,0));
+      }catch(ArithmeticException e){
+         System.out.println("0'a bölemezsiniz");
+      }
+   }
+}
+// 0'a bölemezsiniz
+----
+== Kotlin
+Kotlin'de , Java'nın aksine `checked` diye bir şey yoktur . Bu nedenle, Kotlin'de bir `throws` cümlesi kullanarak Java kontrollü istisnaları bildirmek zorunda değiliz. Aslına bakarsanız, Kotlin'de throws cümlesi bile yoktur.
+[source,kotlin]
+----
+fun throwJavaUnchecked(): Unit = throw IllegalArgumentException()
+fun throwJavaChecked(): Unit = throw IOException()
+----
+Yukarıdaki örnekte, Java standart kütüphanesinden bir `checked` ve `unchecked` istisna atıyoruz. Bu örnekten de anlaşılacağı üzere Kotlin, Java dünyasındaki istisnaların türünü önemsemiyor ve hepsine aynı şekilde davranıyor.
+
+Kotlin'de kontrol edilmiş istisnalar olmadığından, bunları yöntem imzalarında bile bildirmeden farklı işlevlerde kolayca atabiliriz.
+
+Kotlin `@Throws` annotation sağlar. Bir methoda veya fonksiyona `@Throws` annotate edersek , Kotlin  bu yöntemi veya işlevi  imzasında bir throws cümlesi ile derleyecektir :
+[source,kotlin]
+----
+@Throws(IOException::class)
+fun throwJavaChecked(): Unit = throw IOException()
+----
