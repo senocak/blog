@@ -26,4 +26,8 @@ fun main() {
     val string = Json.encodeToString(value = araba)
     println(message = string)
     // {"marka":"Togg","model":"T10X"}
+
+    val obj = Json.decodeFromString<OrnekSerializable>(string)
+    println(message = obj)
+    // OrnekSerializable(marka=Togg, model=T10X)
 }
