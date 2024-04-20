@@ -1,0 +1,78 @@
+= Java: Serialization
+:source-highlighter: highlight.js
+Anıl Şenocak <senocakanil@gmail.com>
+2.0, April 16, 2024
+:description: Bir nesnenin durumunu byte array olarak temsil etme kavramı.
+:organization: Personal
+:doctype: book
+:preface-title: Preface
+// Settings:
+:experimental:
+:reproducible:
+:icons: font
+:listing-caption: Listing
+:sectnums:
+:toc:
+:toclevels: 3
+:xrefstyle: short
+:nofooter:
+
+[%notitle]
+--
+[abstract]
+{description}
+--
+== Açıklama
+Java'da primitive tipler (int, char, boolean…) hariç herşey nesne ve bu nesneleri sürekli kullanırız. Ancak nesneleri bazen JVM dışında kullanmak gerekebiliyor. Fakat dışarıda kullandığımız bir nesnemizi tekrar içeride kullanmak istediğimizde nesne içinde kullanılan değerlerin hangi tipte olduğunu öğrenemiyoruz.
+
+Herhangi bir sınıftan bir nesne üretip, bunu bir dosyaya yazdırıp onu tekrar dosyadan okuduğumuzda değerlerin tip bilgisini bilememe problemimiz var. İşte tam bu durumda `Java Serialization API` yardımımıza koşuyor.
+
+Araba bilgilerini tutan sing Araba diye bir sınıfımız olsun ve bu bilgileri bir dosyaya kaydedip, tekrar okuma işlemi yapalım.
+
+Serileştirme işlemi için Serializable arayüzünü implement etmek gerekiyor.
+[source,kotlin]
+----
+import java.io.FileInputStream
+import java.io.FileOutputStream
+import java.io.ObjectInputStream
+import java.io.ObjectOutputStream
+
+data class OrnekSerializable(var marka: String, var model: String): java.io.Serializable
+
+fun main() {
+    val araba = OrnekSerializable(marka = "Togg", model = "T10X")
+    val arabaYaz = ObjectOutputStream(FileOutputStream("araba.txt"))
+    arabaYaz.writeObject(araba)
+    arabaYaz.close()
+    // araba.txt
+    // ¬í^@^Esr^@)com.github.senocak.blog.OrnekSerializableÔ4)5´f:¿^B^@^BL^@^Emarkat^@^RLjava/lang/String;L^@^Emodelq^@~^@^Axpt^@^DSeatt^@^DLeon
+
+    val read = ObjectInputStream(FileInputStream("araba.txt"))
+    val arabaRead = read.readObject() as OrnekSerializable
+    println(message = arabaRead.toString())
+    read.close()
+    // OrnekSerializable(marka=Togg, model=T10X)
+}
+----
+Görüldüğü gibi dosyaya yazdırdığımız nesneyi tekrar okuyup, başarılı bir şekilde konsolumuza yazdırabildik.
+
+=== Kotlin Serializable
+
+[source,kotlin]
+----
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+
+@Serializable
+data class OrnekSerializable(var marka: String, var model: String)
+
+fun main() {
+    val araba = OrnekSerializable(marka = "Togg", model = "T10X")
+    val string = Json.encodeToString(value = araba)
+    println(message = string)
+    // {"marka":"Togg","model":"T10X"}
+}
+----
+
+link:examples/src/main/kotlin/com/github/senocak/blog/serialization.kt[serialization.kt]
