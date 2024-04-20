@@ -47,4 +47,5 @@ TIP: Bütün örnekler java ile uyumlu çalışan kotlin ile yazılmaya özen g�
 |link:throw-vs-throws.adoc[Throw vs Throws] | Hem throw hem de throws, bir metodtan veya herhangi bir kod bloğundan açıkça bir exception atmak için kullanılan exception işleme kavramlarıdır.
 |link:interface-vs-abstract-class.adoc[Interface vs Abstract Class] | Abstract sınıflar alanlara ve özelliklere sahip olabilirken, interface'ler yalnızca özelliklere sahip olabilir.
 |link:serialization.adoc[Serialization] | Bir nesnenin durumunu byte array olarak temsil etme kavramı.
+|link:timer-sinifi.adoc[Timer Sınıfı] | Kod bloğunun ne zaman, ne sıklıkta çalışacağını belirlemek için kullanılır.
 |===

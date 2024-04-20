@@ -1,0 +1,80 @@
+= Java: Timer Sınıfı
+:source-highlighter: highlight.js
+Anıl Şenocak <senocakanil@gmail.com>
+2.0, April 16, 2024
+:description: Kod bloğunun ne zaman, ne sıklıkta çalışacağını belirlemek için kullanılır.
+:organization: Personal
+:doctype: book
+:preface-title: Preface
+// Settings:
+:experimental:
+:reproducible:
+:icons: font
+:listing-caption: Listing
+:sectnums:
+:toc:
+:toclevels: 3
+:xrefstyle: short
+:nofooter:
+
+[%notitle]
+--
+[abstract]
+{description}
+--
+== Giriş
+Timer sınıfını kullanabilmek için aşağıdaki paketi import etmemiz gerekir.
+
+- java.util.Timer: Timer sınıfından bir nesneyi aşağıdaki yapılandırıcılar ile yaratabiliriz.
+- Timer(): Timer nesnesi yaratır.
+- Timer(String name): Timer nesnesini bizim belirleyeceğimiz özel bir adıyla yaratır.
+
+Timer sınıfından yaratılmış bir nesne aşağıdaki metodlar ile kullanılabilir.
+
+- void cancel(): Timer’ı sona erdirir.
+- int purge(): Sona erdirilen tüm görevleri ilgili timer nesnesinin görev kuyruğundan kaldırır.
+- void schedule(TimerTask task, Date time): Belirtilen görevin hangi zamanda çalışacağını belirler.
+- void schedule(TimerTask task, Date firstTime, long period): Belirtilen görevi hangi zamanda başlatacağını ve ne sıklıkla çalışacağını belirler.
+- void schedule(TimerTask task, long delay): Belirtilen görevi ne kadarlık bir gecikmeyle başlayacağını zamanlar.
+- void schedule(TimerTask task, long delay, long period): Belirtilen görevi ne kadarlık bir gecikmeyle başlayacağını ve ne sıklıkla çalışacağını belirler.
+- void scheduleAtFixedRate(TimerTask task, Date firstTime, long period): Belirtilen görevi hangi zamanda başlatacağını ve hangi sabit oranlı periyodlar ile çalışacağını belirler.
+- void scheduleAtFixedRate(TimerTask task, long delay, long period): Belirtilen görevi ne kadarlık bir gecikme ile başlayacağını ve hangi sabit oranlı periyodlar ile çalışacağını zamanlar.
+
+[source,kotlin]
+----
+import java.util.Timer
+import java.util.TimerTask
+import kotlin.concurrent.fixedRateTimer
+import kotlin.concurrent.timer
+
+fun main() {
+    val task: TimerTask = object : TimerTask() {
+        var seconds: Int = 5
+        override fun run() {
+            println(message = "Kalan Zaman: ${seconds--}")
+            if (seconds < 0)
+                seconds = 5
+        }
+    }
+    Timer().schedule(task, 0, 1000)
+    /*
+    Kalan Zaman: 5
+    Kalan Zaman: 4
+    Kalan Zaman: 3
+    Kalan Zaman: 2
+    Kalan Zaman: 1
+    Kalan Zaman: 0
+    Kalan Zaman: 5
+    Kalan Zaman: 4
+    ...
+    */
+    timer(name = "timer", initialDelay = 1000L, period = 1000L ) {
+        println(message = "scheduledExecutionTime: ${this.scheduledExecutionTime()}")
+    }
+    fixedRateTimer(name = "fixedRateTimer", initialDelay = 1000, period = 1000, daemon = true) {
+        println(message = "scheduledExecutionTime: ${this.scheduledExecutionTime()}")
+    }
+}
+----
+
+link:examples/src/main/kotlin/com/github/senocak/blog/timer.kt[timer.kt]
