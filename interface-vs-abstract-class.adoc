@@ -1,0 +1,94 @@
+= Interface vs Abstract Class
+:source-highlighter: highlight.js
+Anıl Şenocak <senocakanil@gmail.com>
+2.0, April 16, 2024
+:description: Abstract sınıflar alanlara ve özelliklere sahip olabilirken, interface'ler yalnızca özelliklere sahip olabilir.
+:organization: Personal
+:doctype: book
+:preface-title: Preface
+// Settings:
+:experimental:
+:reproducible:
+:icons: font
+:listing-caption: Listing
+:sectnums:
+:toc:
+:toclevels: 3
+:xrefstyle: short
+:nofooter:
+
+[%notitle]
+--
+[abstract]
+{description}
+--
+== Interface Nedir?
+Interface, bir sınıf implement etmek için kullanılabilecek bir blueprinttir. Herhangi bir somut olarak kodu olan metod içermez. Interface'in tüm metodları abstract metodlardır.
+
+Bir interface somutlaştırılamaz(instance'ı oluşturulamaz). Ancak, onu implement eden sınıflar somutlaştırılabilir. Hiçbir zaman örnek değişkenler içermezler, ancak public static final değişkenler (yani sabit sınıf değişkenleri) içerebilirler.
+
+[source,kotlin]
+----
+interface A
+class B : A
+
+fun main() {
+    val test: A = B()
+    //val test2 = A() // compile olmaz: Interface A does not have constructors
+}
+----
+Java'da `implements` kelimesi kullanmadan interface'i kullanmak için anonymous class olarak yazmak gerek;
+
+TIP: Kotlin'de implements keyword'u yoktur, bunu karşılığı sınıf veya interface'ler `:` (iki nokta) ile tanımlarız.
+
+[source,kotlin]
+----
+interface C {
+    fun read(): Unit
+}
+fun main() {
+    val test3 = object : C {
+        override fun read(): Unit = println("interface implemented with anonymously")
+    }
+}
+
+----
+
+=== Interface'leri Kullanmanın Önemli Nedenleri
+- Interfaceler soyutlama elde etmek için kullanılır.
+- Çalışma zamanında(runtime) dinamik metod özelliğini desteklemek için tasarlanmıştır.
+- Gevşek bağlantı(loose coupling) elde etmenize yardımcı olur.
+- Bir yöntemin tanımını kalıtım hiyerarşisinden ayırmanıza izin verir.
+
+
+== Abstract Class Nedir?
+Tanımlanmasında `abstract` anahtar sözcüğüne sahip bir sınıfa abstract/soyut sınıf denir. Abstract sınıfların en az bir soyut metodu(yani gövdesi olmayan metodlar) olmalıdır. Birden fazla somut yönteme sahip olabilir. Abstract sınıflar, somut sınıflar için planlar oluşturmanıza olanak tanır. Ancak miras alan sınıf, soyut yöntemi uygulamalıdır. Soyut sınıflar somutlaştırılamaz(instance'ı oluşturulamaz). Genel tanım ise; kodu, birbiriyle yakından ilişkili birkaç sınıf arasında paylaşmak istememizdir.
+
+=== Abstract Class'lari Kullanmanın Önemli Nedenleri
+
+- Soyut sınıflar, alt sınıflar için varsayılan fonksiyonları sunar.
+- Gelecekteki belirli sınıflar için bir şablon sağlar.
+- Alt sınıfları için ortak bir interface tanımlamanıza yardımcı olur.
+- Abstract class, kodun yeniden kullanılabilirliğine izin verir.
+
+== Interface vs Abstract Class
+Abstract bir sınıf, alt sınıfların uygulayabileceği veya geçersiz kılabileceği işlevsellikleri yapmamıza izin verirken, bir interface yalnızca işlevselliği belirtmenize izin verir, ancak uygulamanıza izin vermez. Bir sınıf yalnızca bir soyut sınıfı genişletebilirken, bir sınıf birden çok arabirim uygulayabilir.
+|===
+|Parametre|Interface|Abstract class
+
+|Hız    | Yavaş | Hızlı
+|Çoklu kalıtım|Birden fazla sınıf'ın implement etmesine izin verir|Yalnızca bir adet
+|Yapı|Abstract methodlar|Abstract & somut methodlar
+|Ne zaman kullanılmalı|Gelecekteki geliştirmeler için|Bağımsızlıktan kaçınmak için
+|Varsayılan Uygulama|Yeni şeyler eklemek, tüm implement edenleri bulmak ve yeni tanımlanmış şeyleri uygulamak zor|Varsayılan implementasyonu kullanabiliriz
+|Erişim Değiştiricileri|Erişim değiştiricileri yoktur. Tanımlanan her şeyin public|Abstract Class'ın bir erişim değiştiricisi olabilir
+|Veri alanları|Veri alanları içeremez|İçerebilir
+|Kalıtım|Birden çok interface'i miras alabilir ancak bir sınıfı devralamaz.|Bir sınıfı ve birden çok interface'i devralabilir
+|Constructor / Destructors|Constructors / Destructors tanımlanamaz.|Tanımlanabilir
+|Limit|Herhangi bir sayıda interface'i extend edebilir.|Bir sınıfı(abstract olabilir) extend edebilir.
+|Abstract kelimesi|Bir metodu abstract olarak bildirmek isteğe bağlıdır.|Abstract anahtar kelimesi zorunludur.
+|Sınıf tipi|Yalnızca public abstract metodlar olabilir.|Protected veya public abstract metodlar olabilir.
+|===
+
+
+link:examples/src/main/kotlin/com/github/senocak/blog/interface-vs-abstract-class.kt[Interface vs Abstract Class]
