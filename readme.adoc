@@ -49,4 +49,5 @@ TIP: Bütün örnekler java ile uyumlu çalışan kotlin ile yazılmaya özen g�
 |link:serialization.adoc[Serialization] | Bir nesnenin durumunu byte array olarak temsil etme kavramı.
 |link:timer-sinifi.adoc[Timer Sınıfı] | Kod bloğunun ne zaman, ne sıklıkta çalışacağını belirlemek için kullanılır.
 |link:overriding-equals-ve-hashcode.adoc[Overriding equals() ve hashcode()] | Overriding equals() ve hashcode()
+|link:checked-ve-unchecked-exceptionlar.adoc[Checked ve Unchecked Exceptionlar] | Checked ve Unchecked Exceptionlar
 |===

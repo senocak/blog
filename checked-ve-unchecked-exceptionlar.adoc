@@ -1,0 +1,73 @@
+= Checked ve Unchecked Exceptionlar
+:source-highlighter: highlight.js
+Anıl Şenocak <senocakanil@gmail.com>
+2.0, April 16, 2024
+:description: Checked ve Unchecked Exceptionlar
+:organization: Personal
+:doctype: book
+:preface-title: Preface
+// Settings:
+:experimental:
+:reproducible:
+:icons: font
+:listing-caption: Listing
+:sectnums:
+:toc:
+:toclevels: 3
+:xrefstyle: short
+:nofooter:
+
+[%notitle]
+--
+[abstract]
+{description}
+--
+== Checked Exceptions
+Genel olarak, kontrol edilen exceptionlar, programın kontrolü dışındaki hataları temsil eder. Örneğin, girdi dosyası yoksa FileInputStream yapıcısı FileNotFoundException'ı atar. Java, checked exceptionları derleme zamanında kontrol eder. Bu nedenle, checked exceptionları bildirmek için throws anahtar sözcüğünü kullanmalıyız:
+
+TIP: Java, checked exceptionları derleme zamanında fırlatır.
+
+[source,java]
+----
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+
+class Test {
+    public static void main(String[] args) throws FileNotFoundException {
+        File file = new File("not_existing_file.txt");
+        FileInputStream stream1 = new FileInputStream(file);
+    }
+}
+----
+Java'da bazı checked exceptionlar: IOException, SQLException ve ParseException.
+
+- Exception sınıfı, checked exception'ların üst sınıfıdır, bu nedenle Exception'yı genişleterek özel bir checked exception oluşturabiliriz:
+[source,java]
+----
+public class IncorrectFileNameException extends Exception {
+    public IncorrectFileNameException(String errorMessage) {
+        super(errorMessage);
+    }
+}
+----
+
+== Unchecked Exceptions
+Bir program denetlenmeyen exception atarsa, program mantığının içindeki bazı hataları yansıtır. Örneğin, bir sayıyı 0'a bölersek, Java ArithmeticException'ı verir:
+[source,java]
+----
+class Test {
+    public static void main(String[] args) {
+        int numerator = 1;
+        int denominator = 0;
+        int result = numerator / denominator;
+        System.out.println("result = " + result);
+    }
+}
+// Exception in thread "main" java.lang.ArithmeticException: / by zero at Test.main(test.java:5)
+----
+
+TIP: Java, unchecked exceptionları çalışma zamanında fırlatır.
+
+== Kotlin
+Kotlin exception durumunu link:throw-vs-throws.adoc#_kotlin[burada] anlattım.
