@@ -48,4 +48,5 @@ TIP: Bütün örnekler java ile uyumlu çalışan kotlin ile yazılmaya özen g�
 |link:interface-vs-abstract-class.adoc[Interface vs Abstract Class] | Abstract sınıflar alanlara ve özelliklere sahip olabilirken, interface'ler yalnızca özelliklere sahip olabilir.
 |link:serialization.adoc[Serialization] | Bir nesnenin durumunu byte array olarak temsil etme kavramı.
 |link:timer-sinifi.adoc[Timer Sınıfı] | Kod bloğunun ne zaman, ne sıklıkta çalışacağını belirlemek için kullanılır.
+|link:overriding-equals-ve-hashcode.adoc[Overriding equals() ve hashcode()] | Overriding equals() ve hashcode()
 |===

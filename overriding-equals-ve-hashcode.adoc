@@ -1,0 +1,77 @@
+= Overriding equals() ve hashcode()
+:source-highlighter: highlight.js
+Anıl Şenocak <senocakanil@gmail.com>
+2.0, April 16, 2024
+:description: Overriding equals() ve hashcode()
+:organization: Personal
+:doctype: book
+:preface-title: Preface
+// Settings:
+:experimental:
+:reproducible:
+:icons: font
+:listing-caption: Listing
+:sectnums:
+:toc:
+:toclevels: 3
+:xrefstyle: short
+:nofooter:
+
+[%notitle]
+--
+[abstract]
+{description}
+--
+== Giriş
+Joshua Bloch'un Effective Java yazısında diyorki;
+
+TIP: Equals() öğesini override eden her sınıfta hashCode() öğesini override etmelisiniz. Bunu yapmamak, sınıfınızın HashMap, HashSet ve Hashtable dahil olmak üzere tüm karma tabanlı koleksiyonlarla birlikte düzgün çalışmasını engelleyen Object.hashCode() için genel sözleşmenin ihlaliyle sonuçlanacaktır.
+
+`HashCode()` u override etmeden sadece `equals()` override edersek ve bir Map kullanmaya çalışırsak ne olacağına dair bir örnekle anlamaya çalışalım.
+
+Diyelim ki aşağıdaki gibi bir sınıfımız var ve importantField değerleri eşitse Bilgi sınıfın iki nesnesinin eşit olduğunu varsayalım.
+
+[source,kotlin]
+----
+internal class Bilgi(
+    val soru: String,
+    val cevap: String
+){
+    override fun equals(other: Any?): Boolean {
+        return when {
+            this === other -> true
+            other == null -> false
+            javaClass != other.javaClass -> false
+            else -> {
+                val bilgi = other as Bilgi
+                if (soru != bilgi.soru)
+                    return false
+                true
+            }
+        }
+    }
+    override fun hashCode(): Int = 31 + soru.hashCode()
+}
+
+fun main() {
+    val bir = Bilgi(soru = "soru1", cevap = "cevap1")
+    val iki = Bilgi(soru = "soru1", cevap = "cevap2")
+
+    val sorular = HashSet<Bilgi>()
+    sorular.add(element = bir)
+    println(message = sorular.contains(iki))
+    println(message = "bir.hashCode(): ${bir.hashCode()}  iki.hashCode(): ${iki.hashCode()}")
+    // Hashcode override edilmeden
+    //false
+    //bir.hashCode(): 381259350  iki.hashCode(): 2129789493
+
+    // Hashcode override edilince
+    //true
+    //bir.hashCode(): 109624977  iki.hashCode(): 109624977
+}
+----
+
+== SONUÇ
+Şimdi, iki nesne eşit olarak kabul edersek, hashcode'larının da eşit olması gerektiğini anladık? Aksi takdirde, Object sınıfındaki varsayılan hashcode yöntemi neredeyse her nesne için benzersiz bir sayı dönderdiğinden, equals() metodu override edilse bile, nesneyi asla bulamayız. Hash kodları eşit değilse, nesnelerin ne kadar eşit olduğunun bir önemi yoktur. Yani bir kez daha: İki nesne eşitse, hashcode'ları da eşit olmalıdır.
+
+link:examples/src/main/kotlin/com/github/senocak/blog/overriding-equals-ve-hashcode.kt[overriding-equals-ve-hashcode.kt]
