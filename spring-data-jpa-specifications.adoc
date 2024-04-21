@@ -1,0 +1,49 @@
+= Spring Data Jpa Specifications
+:source-highlighter: highlight.js
+Anıl Şenocak <senocakanil@gmail.com>
+2.0, April 16, 2024
+:description: Spring Data JPA Spesifikasyonu, sorgularınızı birden fazla ayrı filtreleme seçeneğinden oluşturmanıza olanak tanıyan çok kullanışlı bir özelliktir.
+:organization: Personal
+:doctype: book
+:preface-title: Preface
+// Settings:
+:experimental:
+:reproducible:
+:icons: font
+:listing-caption: Listing
+:sectnums:
+:toc:
+:toclevels: 3
+:xrefstyle: short
+:nofooter:
+
+[%notitle]
+--
+[abstract]
+{description}
+--
+
+== Açıklama
+Spring veya Spring Boot ile veritabanı sorgularını gerçekleştirmemizi sağlayan bir araçtır. Specificationlar, Criteria API'sinin üstüne inşa edilmiştir. Bir kriter sorgusu oluştururken, Root, CriteraQuery, ve CriteriaBuilder nesnelerini kendimiz kurmamız ve yönetmemiz gerekir.
+
+== Örnek
+[source,kotlin]
+----
+fun getAllByUser(user: User?, category: Category?): Page<Post> {
+    val specification: Specification<Post> =
+        Specification { root: Root<Post>, _: CriteriaQuery<*>?, criteriaBuilder: CriteriaBuilder ->
+            var userPredicate = criteriaBuilder.equal(criteriaBuilder.literal(1), 1)
+            if (user != null)
+                userPredicate = criteriaBuilder.equal(root.get<User>("user"), user)
+
+            var categoryPredicate = criteriaBuilder.equal(criteriaBuilder.literal(1), 1)
+            if (category != null)
+                categoryPredicate = criteriaBuilder.equal(root.join<Category, Post>("categories", JoinType.LEFT), category)
+            criteriaBuilder.and(userPredicate, categoryPredicate)
+        }
+    return postRepository.findAll(specification)
+}
+
+----
+
+Daha detaylı örneği link:https://github.com/senocak/Kotlin-Spring-Blog-Boilerplate/blob/b4c4c6840e84d3226b022cfd0a3f421cc9a50cd8/spring-kotlin/src/main/kotlin/com/github/senocak/service/PostService.kt#L12[buradan] bulabilirsiniz

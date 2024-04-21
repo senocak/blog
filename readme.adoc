@@ -51,4 +51,5 @@ TIP: Bütün örnekler java ile uyumlu çalışan kotlin ile yazılmaya özen g�
 |link:overriding-equals-ve-hashcode.adoc[Overriding equals() ve hashcode()] | Overriding equals() ve hashcode()
 |link:checked-ve-unchecked-exceptionlar.adoc[Checked ve Unchecked Exceptionlar] | Checked ve Unchecked Exceptionlar
 |link:collectionlar.adoc[Collectionlar] | Collectionlar, tek bir birim halinde bir araya getirilmiş birden çok nesne grubudur.
+|link:spring-data-jpa-specifications.adoc[Spring Data Jpa Specifications] | Spring Data JPA Spesifikasyonu, sorgularınızı birden fazla ayrı filtreleme seçeneğinden oluşturmanıza olanak tanıyan çok kullanışlı bir özelliktir.
 |===
