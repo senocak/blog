@@ -33,8 +33,8 @@ fun main() {
     val names = arrayListOf("Ornek", "Collection", "Stream")
 
     //Stream'ler genel olarak veiler üzerinde işlem yapmak için kullanılır
-    names.stream().forEach { x: String -> println(message = x) }
-    //names.forEach { x: String -> println(message = x) }
+    names.stream().forEach { print(message = "$it,") } // Ornek,Collection,Stream,
+    //names.forEach { print(message = "$it,") } // Ornek,Collection,Stream,
 }
 ----
 
