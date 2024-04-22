@@ -139,5 +139,3 @@ Final counter value: 0
 - Process, context switching için daha fazla zaman alırken, Threads'ler daha az zaman alır.
 - Process çoğunlukla yalıtılmıştır, oysa Thread'ler belleği paylaşır.
 - Process verileri paylaşmaz ve Thread'ler verileri birbirleriyle paylaşır.
-
-link:examples/src/main/kotlin/com/github/senocak/blog/process-vs-thread.kt[process-vs-thread]

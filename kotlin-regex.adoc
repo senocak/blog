@@ -79,7 +79,6 @@ fun main() {
 == Sınırlar
 Bir dizgedeki sınırları(boundaries) da eşleştirebiliriz. Sınır, bir dizenin başı, bir dizenin sonu, bir kelimenin başlangıcı vb. olabilir.
 
-
 |===
 |Sembol |Açıklama
 
@@ -104,4 +103,103 @@ fun main() {
 }
 ----
 
-link:examples/src/main/kotlin/com/github/senocak/blog/regex.kt[regex.kt]
+== Örnekler
+[source,kotlin]
+----
+private fun matching() {
+    println(message = "-------------------------Matching")
+    val regex = """a([bc]+)d?""".toRegex()
+    println(message = regex.containsMatchIn(input = "xabcdy")) // true
+    println(message = regex.matches(input = "abcd")) // true
+    println(message = regex matches "xabcdy") // false
+}
+private fun extractMatching() {
+    val regex = """a([bc]+)d?""".toRegex()
+    println(message = "-------------------------Extracting Matching Components")
+    var matchResult = regex.matchEntire(input = "abbccbbd")
+    println(message = matchResult?.value) // abbccbbd
+    matchResult = regex.find(input = "abcbabbd")
+    println(message = matchResult?.value) // abcb
+    val matchResults = regex.findAll(input = "abcb abbd")
+    println(message = matchResults.toList().map { it.value }) // [abcb, abbd]
+}
+private fun matchResult() {
+    println(message = "-------------------------The MatchResult Class")
+    val regex = """a([bc]+)d?""".toRegex()
+    val matchResult = regex.find(input = "abcb abbd")
+    println(message = "abcb" == matchResult?.value) // true
+    println(message = IntRange(0, 3) == matchResult?.range) // true
+}
+private fun groupsAndDestructuring() {
+    println(message = "-------------------------Groups and Destructuring")
+    var regex = """a([bc]+)d?""".toRegex()
+    var matchResult = regex.find(input = "abcb abbd")
+    println(message = listOf("abcb", "bcb") == matchResult?.groupValues) // true
+    println(message = IntRange(1, 3) == matchResult!!.groups[1]?.range) // true
+
+    regex = """([\w\s]+) is (\d+) years old""".toRegex()
+    matchResult = regex.find(input = "Mickey Mouse is 95 years old")!!
+    val (name, age) = matchResult.destructured
+    println(message = "Mickey Mouse" == name) // true
+    println(message = "95" == age) // true
+}
+private fun captureGroupsByName() {
+    println(message = "-------------------------Capture Groups by Name")
+    val regex = """(?<name>[\w\s]+) is (?<age>\d+) years old""".toRegex()
+    val matchResult = regex.find(input = "Mickey Mouse is 95 years old")!!
+
+    val age = matchResult.groups["age"]?.value!!
+    val name = matchResult.groups["name"]?.value!!
+
+    println(message = "Mickey Mouse" == name) // true
+    println(message = "95" == age) // true
+}
+private fun multipleMatches() {
+    println(message = "-------------------------Multiple Matches")
+    val regex = """a([bc]+)d?""".toRegex()
+    var matchResult = regex.find(input = "abcb abbd")
+
+    println(message = "abcb" == matchResult!!.value) // true
+
+    matchResult = matchResult.next()
+    println(message = "abbd" == matchResult!!.value) // true
+
+    matchResult = matchResult.next()
+    println(message = matchResult) // null
+}
+private fun replacing() {
+    println(message = "-------------------------Replacing")
+    val regex = """(red|green|blue)""".toRegex()
+    val beautiful = "Roses are red, Violets are blue"
+    val grim = regex.replace(input = beautiful, replacement = "dark")
+    println(message = "Roses are dark, Violets are dark" == grim) // true
+
+    val shiny = regex.replaceFirst(input = beautiful, replacement = "rainbow")
+    println(message = "Roses are rainbow, Violets are blue" == shiny) // true
+}
+private fun complexReplacements() {
+    println(message = "-------------------------Complex Replacements")
+    val regex = """(red|green|blue)""".toRegex()
+    val beautiful = "Roses are red, Violets are blue"
+    val reallyBeautiful = regex.replace(input = beautiful) { "${it.value.uppercase()}!" }
+    println(message = "Roses are RED!, Violets are BLUE!" == reallyBeautiful) // true
+}
+private fun splitting() {
+    println(message = "-------------------------Splitting")
+    val regex = """\W+""".toRegex()
+    val beautiful = "Roses are red, Violets are blue"
+    println(message = listOf("Roses", "are", "red", "Violets", "are", "blue") == regex.split(input = beautiful)) // true
+}
+fun main() {
+    matching()
+    extractMatching()
+    matchResult()
+    groupsAndDestructuring()
+    captureGroupsByName()
+    multipleMatches()
+    replacing()
+    complexReplacements()
+    splitting()
+
+}
+----
