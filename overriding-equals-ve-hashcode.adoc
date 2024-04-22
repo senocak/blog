@@ -73,5 +73,3 @@ fun main() {
 
 == SONUÇ
 Şimdi, iki nesne eşit olarak kabul edersek, hashcode'larının da eşit olması gerektiğini anladık? Aksi takdirde, Object sınıfındaki varsayılan hashcode yöntemi neredeyse her nesne için benzersiz bir sayı dönderdiğinden, equals() metodu override edilse bile, nesneyi asla bulamayız. Hash kodları eşit değilse, nesnelerin ne kadar eşit olduğunun bir önemi yoktur. Yani bir kez daha: İki nesne eşitse, hashcode'ları da eşit olmalıdır.
-
-link:examples/src/main/kotlin/com/github/senocak/blog/overriding-equals-ve-hashcode.kt[overriding-equals-ve-hashcode.kt]
