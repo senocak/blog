@@ -52,5 +52,6 @@ TIP: Bütün örnekler java ile uyumlu çalışan kotlin ile yazılmaya özen g�
 |link:checked-ve-unchecked-exceptionlar.adoc[Checked ve Unchecked Exceptionlar] | Checked ve Unchecked Exceptionlar
 |link:collectionlar.adoc[Collectionlar] | Collectionlar, tek bir birim halinde bir araya getirilmiş birden çok nesne grubudur.
 |link:spring-data-jpa-specifications.adoc[Spring Data Jpa Specifications] | Spring Data JPA Spesifikasyonu, sorgularınızı birden fazla ayrı filtreleme seçeneğinden oluşturmanıza olanak tanıyan çok kullanışlı bir özelliktir.
-|link:spring-security-annotations.adoc|Spring Security Annotations|Bu annotation'ları kullanarak, uygulamanın kaynaklarına kimlerin erişebileceğini ve bu kaynaklarla nasıl etkileşimde bulunabileceklerini kontrol edebiliriz.
+|link:spring-security-annotations.adoc[Spring Security Annotations]|Bu annotation'ları kullanarak, uygulamanın kaynaklarına kimlerin erişebileceğini ve bu kaynaklarla nasıl etkileşimde bulunabileceklerini kontrol edebiliriz.
+|link:entity-listenerda-beanlere-erismek.adoc[entity-listenerda-beanlere-erismek]|entity-listenerda-beanlere-erismek|Entity Listener'da Bean'lere erişmek
 |===

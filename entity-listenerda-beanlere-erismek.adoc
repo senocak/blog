@@ -1,0 +1,92 @@
+= Entity Listener'da Bean'lere erişmek
+:source-highlighter: highlight.js
+Anıl Şenocak <senocakanil@gmail.com>
+2.0, April 16, 2024
+:description: Entity Listener'da Bean'lere erişmek
+:organization: Personal
+:doctype: book
+:preface-title: Preface
+// Settings:
+:experimental:
+:reproducible:
+:icons: font
+:listing-caption: Listing
+:sectnums:
+:toc:
+:toclevels: 3
+:xrefstyle: short
+:nofooter:
+
+[%notitle]
+--
+[abstract]
+{description}
+--
+
+== Açıklama
+`ApplicationContext`, uygulama tarafından oluşturulan tüm bean'leri tutan Spring IoC kapsayıcısını temsil eder. Bean'leri örneklemek, yapılandırmak ve oluşturmaktan sorumludur. Ayrıca, bean'lerin bilgilerini XML veya Java'da sağlanan yapılandırma meta verilerinden alır.
+
+ApplicationContext, BeanFactory'nin alt arayüzünü temsil eder. BeanFactory'nin işlevlerine ek olarak, mesaj çözümleme ve internationalization, resource loading(kaynak yükleme) ve event publishing gibi özellikleri içerir. Ayrıca, birden fazla bağlam yükleme işlevselliğine sahiptir.
+
+Her bir bean, eager loading kullandığı için container başlatıldıktan sonra instantiated edilir.
+
+Uygulamamızdaki diğer bean ve kaynaklara erişmek için bu konteyneri kullanmak isteyebiliriz. Spring uygulamasında geçerli ApplicationContext referansını almanın iki yolunu öğreneceğiz.
+
+- ApplicationContext'ı dependency olarak ilgili bean'e inject etmek
+
+[source,kotlin]
+----
+@Service
+class RoleService(val applicationContext: ApplicationContext) {
+    // TODO
+}
+----
+
+- s `ApplicationContextAware` interface'i implement etmek ve static olarak erişmek
+
+TIP: `ContextWrapper.getBean()` çağrısı Inversion of Control(IOC) değildir. Verilen bean adı için hangi uygulamanın yapılandırıldığını değiştirmek hala kolay olsa da, sınıf artık bu bağımlılığı sağlamak için doğrudan Spring'e güveniyor ve başka bir şekilde elde edemiyor. Bir test sınıfında kendi mock uygulamanızı oluşturamaz ve bunu ona kendiniz aktaramazsınız. Bu temelde Spring'in bir dependency injection container olma amacını ortadan kaldırır.
+
+[source,kotlin]
+----
+@Entity
+@Table(name = "roles")
+@EntityListeners(Role.RoleListeners::class)
+class Role: java.io.Serializable {
+    @Id
+    var id: Long? = null
+
+    class RoleListeners {
+        @PrePersist
+        @PreUpdate
+        fun prePersist(role: Role) {
+            val snowflake: Snowflake = ContextWrapper.getBean("snowflake") as Snowflake
+            val nextId: Long = snowflake.nextId
+            println(message = "snowflake is not null and will be used: $nextId")
+            role.id = nextId
+        }
+    }
+}
+
+@Service
+class ContextWrapper: ApplicationContextAware {
+    override fun setApplicationContext(appContext: ApplicationContext) = run { applicationContext = appContext }
+
+    companion object {
+        private var applicationContext: ApplicationContext? = null
+        fun getBean(beanId: String?): Any? = applicationContext?.getBean(beanId!!)
+    }
+}
+
+@Service
+class Snowflake {
+    @get:Synchronized
+    val nextId: Long
+        get() = Random.nextLong()
+
+}
+----
+
+Mesela bu tablo'ya bir kayıt eklendiğinde başka bir tabloda güncelleme işlemi yapmak istiyoruz? Bu durumda Spring Autowired gibi dependency injection yapamayacak çünkü burayı spring yönetmiyor. Yapmamız gereken ApplicationContext içerisinde bean'i çekmemiz veya ilgili sınıfı manuel olarak kendimiz oluşturmamız gerekecek.
+
+== Demo
+link:examples/src/main/kotlin/com/github/senocak/blog/entity-listenerda-beanlere-erismek.kt[entity-listenerda-beanlere-erismek.kt]
