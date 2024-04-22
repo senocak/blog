@@ -48,6 +48,7 @@ Callable, görev kuyruğuna koymak için `submit()` yöntemini kullanır, ancak 
 Callable ve Runnable arasındaki bir diğer önemli fark, checked exception'ları atma yeteneğidir.
 
 - Callable interface, checked exception fırlatabilir çünkü call() metodu exception fırlatır.
+
 [source,kotlin]
 ----
 class WorkRunnable : Runnable {
@@ -90,5 +91,12 @@ class WorkCallable : Callable<String> {
 //Thread main with state RUNNABLE
 ----
 Yukarıdaki 2 kod önce #Task started# yazıyor, 1 saniye bekliyor ve son olarak thread adı yazdırılıyor.
+[source,kotlin]
+----
+fun main() {
+    WorkRunnable().run()
+    WorkCallable().call()
+}
+----
 
 Ancak bir farklılık vardır, sınıfı uyguladığınızda, geri dönen değişkenin türünü belirtmeniz gerekir. Bu örnekte Callable bir string döndürecektir, ancak tanımladığınız bir sınıf dahil olmak üzere istediğiniz herhangi bir türü döndürebilir.

@@ -113,5 +113,3 @@ fun main() {
     // StringBuilder Geçen Süre: 3 ms
 }
 ----
-
-link:examples/src/main/kotlin/com/github/senocak/blog/stringbuilder-vs-stringbuffer.kt[stringbuilder-vs-stringbuffer.kt]

@@ -70,11 +70,14 @@ data class OrnekSerializable(var marka: String, var model: String)
 fun main() {
     val araba = OrnekSerializable(marka = "Togg", model = "T10X")
     val string = Json.encodeToString(value = araba)
-    println(message = string)
+    println(message = "$string")
     // {"marka":"Togg","model":"T10X"}
+
+    val obj = Json.decodeFromString<OrnekSerializable>(string)
+    println(message = "$obj")
+    // OrnekSerializable(marka=Togg, model=T10X)
 }
 ----
-
 
 == Serialization faydaları
 İlk olarak, verilerinizi farklı formatlarda kaydetmenizi sağlar. Bu verilere daha sonra, programınız kapatıldıktan sonra bile erişebileceksiniz. Serileştirme ayrıca verilerinizi başkalarıyla paylaşmanıza olanak tanıyarak verilerinize her yerden erişebilmenizi sağlar.
@@ -85,6 +88,3 @@ Son olarak, diğer formatları okumanızı ve anlamanızı sağlar. Örneğin, b
 İlk ve en önemlisi, serileştirme yapmak zaman alır. Bilgisayarınızın verilerinizi okuması ve farklı bir formatta kaydetmesi gerekecektir. Eğer büyük miktarda veri ile çalışıyorsanız, bu işlem biraz zaman alabilir.
 
 Hassas verileri serileştirirken de dikkatli olmanız gerekir. Bu, finansal bilgileri veya insanların görmesini istemediğiniz diğer verileri içerebilir. Bu verileri bir dosyaya kaydeder ve başkalarıyla paylaşırsanız, bu kişiler bu verilere erişebilir.
-
-
-link:examples/src/main/kotlin/com/github/senocak/blog/serialization.kt[serialization.kt]

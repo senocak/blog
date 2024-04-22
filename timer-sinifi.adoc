@@ -76,5 +76,3 @@ fun main() {
     }
 }
 ----
-
-link:examples/src/main/kotlin/com/github/senocak/blog/timer.kt[timer.kt]
