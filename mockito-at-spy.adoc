@@ -59,5 +59,3 @@ fun givenSuccessfulPath_whenLogin_thenReturn200() {
 - java.lang.Appendable'in tüm implementleri
 - Apache Camel builders
 - Apache Commons Option.Builder
-
-link:examples/src/main/kotlin/com/github/senocak/blog/builder-pattern.kt[builder-pattern.kt]

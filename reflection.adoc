@@ -30,8 +30,6 @@ Reflection'ın somut bir kullanımı, yazılım bileşenlerinin bir builder arac
 
 [source,kotlin]
 ----
-package examples
-
 class OrnekSinif {
     private fun ornekMetod1(p: Any?, x: Int): Int =
         when (p) {

@@ -215,7 +215,7 @@ private fun main() {
 [source,kotlin]
 ----
 fun main(){
-    val list: MutableList<String> = ArrayList<String>()
+    val list: MutableList<String> = arrayListOf<String>()
         .also {
             it.add("one")
             it.add("two")
@@ -522,5 +522,5 @@ private fun setOf() {
 }
 ----
 
-
-
+== Örnek
+link:examples/collectionlar.kt[collectionlar.kt]

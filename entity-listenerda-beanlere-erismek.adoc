@@ -87,6 +87,3 @@ class Snowflake {
 ----
 
 Mesela bu tablo'ya bir kayıt eklendiğinde başka bir tabloda güncelleme işlemi yapmak istiyoruz? Bu durumda Spring Autowired gibi dependency injection yapamayacak çünkü burayı spring yönetmiyor. Yapmamız gereken ApplicationContext içerisinde bean'i çekmemiz veya ilgili sınıfı manuel olarak kendimiz oluşturmamız gerekecek.
-
-== Demo
-link:examples/src/main/kotlin/com/github/senocak/blog/entity-listenerda-beanlere-erismek.kt[entity-listenerda-beanlere-erismek.kt]

@@ -127,6 +127,3 @@ fun main() {
         }
 }
 ----
-
-
-link:examples/src/main/kotlin/com/github/senocak/blog/terminal-operations.kt[terminal-operations.kt]
