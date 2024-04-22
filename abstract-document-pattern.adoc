@@ -108,19 +108,11 @@ fun main() {
 ----
 
 == Verification
-[source,kotlin]
+[source]
 ----
-/*
 Constructing car
 Here is our car:
 -> type: car
 -> model: 300SL
 -> price: 10000
- */
 ----
-
-link:examples/src/main/kotlin/com/github/senocak/blog/abstract-document-pattern.kt[abstract-document-pattern.kt]
-
-
-
-
