@@ -78,5 +78,3 @@ fun main() {
 |Eagerly oluşturulur.	|Lazy oluşturulur.
 |Örnek: List, Set, Map…	|Örnek: filtering, mapping, matching…
 |===
-
-link:examples/src/main/kotlin/com/github/senocak/blog/collections-vs-streams.kt[collections-vs-streams.kt]

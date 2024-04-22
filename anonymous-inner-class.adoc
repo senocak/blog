@@ -94,5 +94,3 @@ fun main() {
 - Normal bir sınıf herhangi bir sayıda interface uygulayabilir, ancak anonymous inner sınıf aynı anda yalnızca bir interface uygulayabilir.
 - Normal bir sınıf, bir sınıfı genişletebilir ve aynı anda herhangi bir sayıda interface uygulayabilir. Ancak anonymous inner sınıf, bir sınıfı genişletebilir veya bir interface uygulayabilir, ancak her ikisini birden uygulayamaz.
 - Normal sınıf için herhangi bir sayıda yapıcı yazabiliriz, ancak anonymous inner sınıf için herhangi bir yapıcı metod yazamayız çünkü anonymous sınıfın herhangi bir adı yoktur ve yapıcı sınıfı tanımlarken yapıcı sınıf adı ile yapıcı adı aynı olmalıdır.
-
-link:examples/src/main/kotlin/com/github/senocak/blog/anonymous-inner-class.kt[anonymous-inner-class.kt]
