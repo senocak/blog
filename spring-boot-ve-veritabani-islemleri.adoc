@@ -1,0 +1,333 @@
+= Spring Boot ve Veritabanı İşlemleri
+:source-highlighter: highlight.js
+Anıl Şenocak <senocakanil@gmail.com>
+2.0, April 16, 2024
+:description: Spring Boot JDBC, JPA/Hibernate, JOOQ gibi SQL tabanlı veri erişim teknolojileri ile çalışmayı kolaylaştırır.
+:organization: Personal
+:doctype: book
+:preface-title: Preface
+// Settings:
+:experimental:
+:reproducible:
+:icons: font
+:listing-caption: Listing
+:sectnums:
+:toc:
+:toclevels: 3
+:xrefstyle: short
+:nofooter:
+
+[%notitle]
+--
+[abstract]
+{description}
+--
+
+== Giriş
+DataSource, pool kabiliyeti, transactionManager, JdbcTemplate, NamedParameterJdbcTemplate gibi noktalarda otomatik konfigürasyon sağlar. Aktive etmek için jdbc veya data-jpa starter'ına ihtiyaç vardır
+
+[source,xml]
+----
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-data-jpa</artifactId>
+</dependency>
+----
+veya
+[source,kotlin]
+----
+dependencies {
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+}
+----
+
+== DataSource Konfigürasyonu
+Spring Boot veritabanı bağlantılarını yönetmek için javax.sql.DataSource tipinde bir bean'ı otomatik olarak tanımlamaktadır Veritabanı bağlantı ayarları dataSource bean'ine özel property'ler ile yapılır.
+[source,yaml]
+----
+spring:
+  datasource:
+    url: jdbc:h2:tcp://localhost/~/test
+    username: sa
+    password: sa
+    driver-class-name: org.h2.Driver
+----
+== Embedded DB Desteği
+Geliştirme sürecinde veriyi hafızada tutarak çalışan gömülü veritabanları ile çalışmak daha pratik olmaktadır. Veri kalıcı olarak kadedilmediği için uygulama her başladığında populate edilmekte, uygulama sonlandığında da kaybedilmektedir. Spring Boot H2, HSQL, Derby gömülü veritabanları ile çalışmayı destekler. Gömülü veritabanı konfigürasyonunun otomatik olarak gerçekleşebilmesi için hem gömülü veritabanı kütüphanesine, hem de jdbc veya data-jpa starter'larından birisine ihtiyaç vardır.
+[source,xml]
+----
+<dependencies>
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-data-jpa</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>com.h2database</groupId>
+        <artifactId>h2</artifactId>
+        <scope>runtime</scope>
+    </dependency>
+</dependencies>
+----
+veya
+[source,kotlin]
+----
+dependencies {
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    runtimeOnly("com.h2database:h2")
+}
+----
+== H2 Web Console
+Spring Boot, H2'nin web console'unu otomatik olarak devreye sokar. Bunun için;
+
+1. Geliştirilen uygulamanın web tabanlı olması,
+2. H2'nin classpath'de olması,
+3. Spring Boot Dev Tools'un kullanılması
+4. Dev Tools kullanılmasa da H2 console devreye alınabilir.
+    - spring.h2.console.enabled=true
+5. Default path'i /h2-console'dur, değiştirilebilir.
+    - spring.h2.console.path=/h2-console
+
+== Connection Pool Kabiliyeti
+Spring Boot üretim ortamları için “pooling” kabiliyeti de sağlamaktadır. Default olarak HikariCP tercih edilir. İkinci olarak classpath'de Tomcat-Jdbc'ye bakılır. Üçüncü olarak Commons DBCP aranır. Son olarak da Commons DBCP2 tercih edilir.
+
+İstenirse bu algortima uygulamaya göre özelleştirilebilir.
+[source,yaml]
+----
+spring:
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+----
+Her bir pooling algoritmasının kendine ait property'leri de mevcuttur.
+
+- spring.datasource.tomcat.*
+- spring.datasource.hikari.*
+- spring.datasource.dbcp2.*
+
+== JNDI veya Custom DataSource
+Spring Boot uygulaması bir uygulama sunucusuna deploy edilecek ise JNDI üzerinden bu sunucudaki dataSource'u da kullanması sağlanabilir.
+[source,yaml]
+----
+spring:
+  datasource:
+    jndi-name: java:comp/env/TestDB
+----
+İstenirse tamamen uygulamaya özel bir dataSource bean tanımı da yapılabilir. Bu durumda Spring Boot dataSource ve pooling konfigürasyonunda tamamen devre dışı kalacaktır.
+
+== JDBC ile Çalışmak
+JDBC ile çalışmak için jdbc-starter'ına ihtiyaç vardır. Spring Boot JdbcTemplate ve NamedParameterJdbcTemplate bean'larını otomatik olarak tanımlar.
+[source,kotlin]
+----
+@Repository
+class OwnerDaoJdbcImpl(
+    val jdbcTemplate:JdbcTemplate,
+    val namedParameterJdbcTemplate:NamedParameterJdbcTemplate
+): OwnerDao {}
+----
+== JPA/Hibernate ile Çalışmak
+JPA ile çalışabilmek için data-jpa starter'ına ihtiyaç vardır.
+Spring Boot JPA desteği Spring Data projesi üzerine kuruludur.
+EntityManagerFactory bean tanımı otomatik olarak yapılır.
+Spring Boot doğrudan Hibernate üzerinden çalışmayı desteklemediği için SessionFactory bean tanımı mevcut değildir.
+JPA/Hibernate property'leri application.yml içerisinden uygulamaya göre özelleştirilebilir.
+[source,yaml]
+----
+spring:
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+        show_sql: true
+        format_sql: true
+        use_sql_comments: true
+----
+== JPA Auto Scan Kabiliyeti
+Entity sınıflarını tespit etmek için @EnableAutoConfiguration veya @SpringBootApplication anotasyonuna sahip sınıfın bulunduğu paket ve alt paketleri taranır.
+
+Benzer biçimde Spring Data Repository veya CrudRepository arayüzlerinden türeyen uygulamaya özel arayüzler de otomatik olarak tespit edilmektedir. @Repository annotation'ının kullanmaya gerek kalmıyor.
+
+== JPA ile Otomatik Şema Yönetimi
+Sadece gömülü veritabanı kullanımı durumunda JPA ile veritabanı otomatik olarak yaratılacaktır. Connection tipi H2, HSQLDB, DERBY ise gömülü veritabanı olarak kabul edilir. Gömülü olmayan veritabanı kullanımında da bu özelliği aktive etmek için,
+[source,yaml]
+----
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+----
+Bu tanım aşağıdaki tanımı her zaman ezer,
+[source,yaml]
+----
+spring:
+  jpa:
+    generate-ddl: true
+----
+
+== Open EntityManagerin View
+Spring Boot Hibernate ile çalışırken lazy hatalarının önüne geçmek için default olarak OpenEntityManagerInViewInterceptor tanımlar. İstenirse devre dışı bırakılabilir.
+[source,yaml]
+----
+spring:
+  jpa:
+    open-in-view: false
+----
+Hibernate 5.x için tercih edilen yöntemenable lazy load no trans özelliğidir.
+[source,yaml]
+----
+spring:
+  jpa:
+    properties:
+      hibernate:
+        enable_lazy_load_no_trans: true
+----
+
+== Sample Data Population
+Spring Boot classpath'de schema.sql ve data.sql script dosyaları mevcut ise bu dosyaların içindeki sql ifadelerini bootstrap sırasında çalıştıracaktır.
+Dosyaların lokasyonu veya isimleri uygulamaya göre özelleştirilebilir.
+[source,yaml]
+----
+spring:
+  datasource:
+    schema: classpath:/schema.sql
+    data: classpath:/data.sql
+----
+
+== Sample Data Population
+Eğer classpath'de mevcut ise `schema-${platform}.sql` ve `data-${platform}.sql` dosyalarındaki ifadeler de çalıştırılacaktır. `${platform}` değişkeninin değeri application.yaml içerisindeki tanımdan çözümlenir,
+[source,yaml]
+----
+spring:
+  datasource:
+    platform: all
+# hsqldb,h2,oracle,mysql,postgresql gibi değerler yazılabilir. Bizim belirlediğimiz bir değerde olabilir
+----
+
+== Sample Data Population
+Hibernate'de bootstrap sırasında eğer ddl-auto değeri create veya create-drop durumunda classpath'de import.sql isimli bir dosya mevcut ise bu dosyadaki sql ifadelerini çalıştırır.
+
+== Veritabanı Init Sürecindeki İşlemlerin Sıralaması
+    schema-${platform}.sql
+    schema.sql
+    data-${platform}.sql
+    data.sql
+    ddl-auto değeri create|create-drop ise import.sql
+    # ddl-auto değerine göre schema değişiklikleri
+
+== Data Initialization’ın Devre Dışı Bırakılması
+İstenirse veritabanı initialization işlemi devre dışı bırakılabilir,
+[source,yaml]
+----
+spring:
+  datasource:
+    initialization-mode: never
+# Alabileceği değerler: always, embedded, never
+----
+
+== DB Migration Desteği
+Schema.sql ve data.sql ile veritabanında incremental değişiklikler yaparak ilerlemek mümkün değildir. Spring Boot gelişmiş DB migration ihtiyaçları için flyway ve liquibase araçlarını desteklemektedir. Flyway doğrudan SQL ifadeleri üzerinden çalışır. Liquibase ise kendine ait vendor bağımsız bir DSL’e sahiptir. Devreye almak için ilgili kütüphaneleri `pom.xml` veya `build.gradle(.kts)` eklemek yeterlidir.
+
+Maven
+[source,xml]
+----
+<dependencies>
+    <dependency>
+        <groupId>org.flywaydb</groupId>
+        <artifactId>flyway-core</artifactId>
+    </dependency>
+// veya
+    <dependency>
+        <groupId>org.liquibase</groupId>
+        <artifactId>liquibase-core</artifactId>
+    </dependency>
+</dependencies>
+----
+Gradle
+[source,kotlin]
+----
+dependencies {
+    implementation("org.flywaydb:flyway-core")
+// veya
+    implementation("org.liquibase:liquibase-core")
+}
+----
+
+== Flyway
+Flyway migration SQL dosyaları classpath’de db/migration dizini altına yer almalıdır. Dosyaların formatı `V<version>__<desc>.sql` şeklinde olmalıdır.
+
+=== Syntax
+Flyway plain sql dosyaları ile çalışmaktadır, o nedenle kullanımı daha kolaydır.
+
+- V1__schema.sql
+- V2__data.sql
+
+Migration işlemleri ile ilgili takip DB’de `flyway_schema_history` isimli tablo içerisinde gerçekleştirilir.
+
+=== Kullanımı
+[source,yaml]
+----
+spring:
+  datasource:
+    url: jdbc:postgresql://${SERVER_IP:localhost}:${POSTGRESQL_PORT:5432}/${POSTGRESQL_DB:boilerplate}?currentSchema=${POSTGRESQL_SCHEMA:public}
+    username: ${POSTGRESQL_USER:postgres}
+    password: ${POSTGRESQL_PASSWORD:pass}
+  flyway:
+    locations: classpath:migration
+    placeholderReplacement: false
+    sql-migration-prefix: V
+    table: flyway_schema_history
+    enabled: true
+----
+=== Örnek
+
+link:https://github.com/senocak/SpringBoot-Kotlin-React-TypeScript-Boilerplate/blob/main/spring-kotlin17/auth/src/main/resources/migration/V1__init.sql[Boilerplate örnek migration]
+
+== Liquibase
+Veritabanı şeması üzerindeki değişikliklerimizi yönetmemizi sağlayan açık kaynaklı bir Java kütüphanesidir. Kendine ait yazı dili vardır, xml, yaml, json gibi formatları desteklemektedir.
+
+=== Syntax
+[source]
+----
+databaseChangeLog:
+	- changeSet:
+		id: 1
+		changes:
+			- createTable:
+				tableName: person
+				columns:
+					- column:
+						name: id
+						type: int
+						constraints:
+						primaryKey: true
+						nullable: false
+					- column:
+						name: first_name
+						type: varchar(255)
+	- changeSet:
+		id: 2
+		changes:
+			- addColumn:
+				tableName: person
+				columns:
+					- column:
+						name: last_name
+						type: varchar(255)
+----
+
+=== Kullanımı
+
+[source,yaml]
+----
+spring:
+  datasource:
+    url: jdbc:postgresql://${SERVER_IP:localhost}:${POSTGRESQL_PORT:5432}/${POSTGRESQL_DB:boilerplate}?currentSchema=${POSTGRESQL_SCHEMA:public}
+    username: ${POSTGRESQL_USER:postgres}
+    password: ${POSTGRESQL_PASSWORD:pass}
+  liquibase:
+    enabled: true
+    change-log: classpath:changelog.xml
+----
+
+=== Örnek
+link:https://github.com/senocak/Kotlin-Spring-Blog-Boilerplate/blob/main/spring-kotlin/src/main/resources/changes/1-createTable.xml[Boilerplate örnek migration]
+
+
