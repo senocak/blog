@@ -1,0 +1,340 @@
+= Spring Security Annotations
+:source-highlighter: highlight.js
+Anıl Şenocak <senocakanil@gmail.com>
+2.0, April 16, 2024
+:description: Spring security ve annotation'ları kullanarak, uygulamanın kaynaklarına kimlerin erişebileceğini ve bu kaynaklarla nasıl etkileşimde bulunabileceklerini kontrol edebiliriz.
+:organization: Personal
+:doctype: book
+:preface-title: Preface
+// Settings:
+:experimental:
+:reproducible:
+:icons: font
+:listing-caption: Listing
+:sectnums:
+:toc:
+:toclevels: 3
+:xrefstyle: short
+:nofooter:
+
+[%notitle]
+--
+[abstract]
+{description}
+--
+== Açıklama
+Spring Security, Spring Framework’in bir parçası olan ve güvenlik işlevselliğini uygulamalara entegre etmeyi sağlayan bir güvenlik çerçevesidir.
+
+Spring Security, kullanıcı kimlik doğrulama, yetkilendirme ve diğer güvenlik konularını ele almak için kullanılan bir Java kütüphanesidir.
+
+[source, kotlin]
+----
+implementation("org.springframework.boot:spring-boot-starter-security")
+----
+[source, xml]
+----
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-security</artifactId>
+</dependency>
+----
+
+- Default olarak bütün HTTP endpoint'leri güvenlik altına alınmıştır.
+- Default olarak password'ü rastgele belirlenmiş ve lNFO log düzeyinde console'a yazılan user isimli bir kullanıcı mevcuttur.
+- HSTS, XSS, CSRF gibi özellikler devreye alınmıştır.
+- Default olarak aşağıdaki statik web resource path'leri public resource (unsecure) olarak erişilmektedir.
+----
+/css/**
+/js/**
+/images/**
+/webjars/**
+**/favicon.ico
+----
+- Bu kullanıcı adını ve password'ü ve rollerini application.yml'dan değiştirmek mümkündür.
+
+[source, yaml]
+----
+security:
+  user:
+    name: user
+    password: secret
+    role: USER,ACTUATOR
+----
+
+== Default Security Konfigürasyonu
+Default web app security konfigürasyonunu özelleşitirmek için WebSecurityConfigurerAdapter sınıfından türeyen bir konfigürasyon sınıfı yazılmalıdır.
+Default konfigürasyonu tamamen devre dışı bırakmak için @EnableWebSecurity eklenmelidir.
+
+SpringBoot 3'den önce aşağıdaki gibi `WebSecurityConfigurerAdapter` extend edip ilgili fonksiyonu ovverride `configure` etmemiz yeterli olacakır.
+
+TIP: Eğer custom `AuthenticationManager` kullanmıyorsanız yine ilgili method'un default olanı ile ilerleyebilirsiniz.
+
+[source, java]
+----
+@Configuration
+@EnableWebSecurity
+public class PetClinicSecurityConfig(
+    JwtAuthenticationEntryPoint unauthorizedHandler,
+    JwtAuthenticationFilter jwtAuthenticationFilter
+)extends WebSecurityConfigurerAdapter {
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http
+            .csrf().disable() // 1
+            .exceptionHandling().authenticationEntryPoint(unauthorizedHandler) // 2
+        .and()
+            .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS) // 3
+        .and()
+            .authorizeRequests() // 4
+            .antMatchers("/h2-console/**", "/", "/favicon.ico", "/**/*.png", "/**/*.gif", "/**/*.svg", "/**/*.jpg", "/**/*.html", "/**/*.css", "/**/*.js").permitAll()
+            .antMatchers("/actuator/**").access("hasRole('ADMIN')")
+            .anyRequest().authenticated();
+        // Add our custom JWT security filter
+        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class); // 5
+    }
+}
+----
+
+SpringBoot 3 ile bu yaklaşım biraz değişmiştir ve daha sade olmuştur.
+
+[source, kotlin]
+----
+@Configuration
+@EnableWebSecurity
+class WebSecurityConfig(
+    private val unauthorizedHandler: JwtAuthenticationEntryPoint,
+    private val jwtAuthenticationFilter: JwtAuthenticationFilter,
+) {
+    @Bean
+    fun securityFilterChainDSL(http: HttpSecurity): SecurityFilterChain {
+        http {
+            csrf { disable() } // 1
+            exceptionHandling { authenticationEntryPoint = unauthorizedHandler } // 2
+            sessionManagement { sessionCreationPolicy = SessionCreationPolicy.STATELESS } // 3
+            authorizeRequests { // 4
+                authorize(pattern = "/api/v1/auth/**", access = permitAll)
+                authorize(pattern = "/h2-console/**", access = permitAll)
+                authorize(pattern = "/actuator/**", access = "hasRole('ADMIN')")
+                authorize(matches = anyRequest, access = authenticated)
+            }
+            addFilterBefore<UsernamePasswordAuthenticationFilter>(filter = jwtAuthenticationFilter) // 5
+        }
+        return http.build()
+    }
+}
+----
+
+- 1. Uygulama'da csrf özelliğini kapattık.
+- 2. Eğer Filter içerisinde oluşacak exception'ları yakalayacağımız özel bir bean(Advice değil)
+- 3. Uygulama kendi üzerinde authentication ile ilgili bilgileri tutup tutmayacağı, olacaksa da nasıl olması gerektiği
+- 4. Secure ve unsecure edilecek apilerin listesi yani korumamız gereken apiler veya gerek olmadığını düşündüğümüz apiler(Role tabanlı authorization'da dahil)
+- 5. Bu configuration'dan önce tetiklenecek filter
+
+== Form Tabanlı Login
+Aşağıdaki örneğin yukarıda örnek configuration ile ilgisi yoktur. Burada stateful bir yapı kullanıyoruz ve ilgili servis üzerinde session'lar ile kullanıcı bilgisini tutuyoruz.
+[source, java]
+----
+// http://localhost:8080/login.html
+@Controller
+public class LoginFormController {
+	@RequestMapping(value="/login.html", method=RequestMethod.GET)
+	public ModelAndView loginPage() {
+		ModelAndView mav = new ModelAndView();
+		mav.setViewName("login");
+		return mav;
+	}
+}
+----
+[source, html]
+----
+// application.properties içerisinde
+// spring.mvc.view.prefix=/WEB-INF/jsp/
+// spring.mvc.view.suffix=.jsp
+// /WEB-INF/jsp/login.jsp
+<html lang="tr">
+	<body>
+		<form action="login" method="post">
+			Username:<input name="username" type="text" /> <br/>
+			Password:<input name="password" type="password" /> <br/>
+			<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+			<input type="submit" value="Login"/>
+		</form>
+	</body>
+</html>
+----
+
+=== Logout
+- Spring Security’nin default ayarlarında logout ve CSRF kabiliyetleri aktiftir.
+- Default logout URI’ı /logout şeklindedir.
+- Ancak CSRF, /logout URI’ına HTTP GET ile erişime izin vermez.
+- Dolayısı ile logout işlemi için bir HTML form kullanmak ve POST metodu ile web isteği göndermek gerekecektir.
+[source, html]
+----
+<html lang="tr">
+	<body>
+		...
+		<form action="logout" method="post">
+			<input type="submit" value="Logout">
+			<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">
+		</form>
+	</body>
+</html>
+----
+
+=== Beni Hatırla
+[source, java]
+----
+@Configuration
+public class SecurityConfiguration(UserDetailsService userDetailsService) extends WebSecurityConfigurerAdapter{
+
+	@Override
+	protected void configure(HttpSecurity http) throws Exception {
+		// diğer opsiyonlar
+		http.rememberMe().userDetailsService(userDetailsService);
+	}
+}
+----
+[source, html]
+----
+<html lang="tr">
+	<body>
+		...
+		<form action="login" method="post">
+			Username:<input name="username" type="text" /> <br/>
+			Password:<input name="password" type="password" /> <br/>
+			Remember Me:<input name="remember-me" type="checkbox"> <br/>
+			<inputtype="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+			<input type="submit" value="Login"/>
+		</form>
+	</body>
+</html>
+----
+
+== HTTP Basic Auth
+[source, java]
+----
+@Configuration
+public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
+	@Override
+	protected void configure(HttpSecurity http) throws Exception {
+		//...
+		http.httpBasic();
+	}
+}
+----
+
+== Role Based Authorization
+Yukarıdaki örnekte görüldüğü gibi `hasRole('ADMIN')` ile role'e bağlı olarak yetkilendirme yaptık.
+
+== Kriptolu Şifre Kullanımı
+- Spring Security şifrelerin DB'de kriptolu olarak saklanmasını sağlar.
+- Şifreleri kriptolamak için değişik algoritmalar kullanılabilir.
+
+    bcrypt, pbkdf2, scrypt, md4, sha...
+
+- Bunların hepsi tek yönlü algoritmalardır.
+- Kimliklendirme sırasında kullanıcının girdiği şifre algoritmaya göre kriptolanarak DB'deki kriptolu değer ile karşılaştırılır.
+
+== Oturum Yönetimi
+Tomcat Web Container’ın session timeout değeri default 30 dk’dır.
+Application.properties içerisinden değiştirilebilir.
+[source, yaml]
+----
+server:
+  session:
+    timeout: 60
+----
+[source, java]
+----
+@Configuration
+public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
+	@Override
+	protected void configure(HttpSecurity http) throws Exception {
+	    http
+            .sessionManagement()
+		    .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+		    .maximumSessions(1)
+		    .maxSessionsPreventsLogin(false)
+		    .expiredUrl("/login");
+    }
+
+	@Bean
+	public ServletListenerRegistrationBean<HttpSessionEventPublisher>
+	httpSessionEventPublisher() {
+		return new ServletListenerRegistrationBean<HttpSessionEventPublisher>(new HttpSessionEventPublisher());
+	}
+}
+----
+
+== Annatation'lar
+`@PreAuthorize` `@RolesAllowed` ve `@Secured` öğelerinin tümü, method güvenliğini yapılandırmaya izin veren annotationlardır. Hem bireysel metodlara hem de sınıf düzeyinde uygulanabilirler Method düzeyinde güvenlik, Spring AOP proxies'leri kullanılarak gerçekleştirilir.
+
+Metot düzeyinde yetkilendirmeyi devreye almak için `@EnableGlobalMethodSecurity` anotasyonuna sahip bir konfigürasyon sınıfı olmalıdır.
+
+=== @PreAuthorize
+Spring Security 3 ile birlikte `@PreAuthorize` and `@PostAuthorize` desteklemiştir.
+
+`Spring Expression Language` (SpEL) kullanılarak bir metoda erişim kısıtlamalarının belirlenmesine olanak tanır. Bu kısıtlamalar, metod yürütülmeden önce değerlendirilir ve kısıtlamalar yerine getirilmezse, metodun yürütülmesinin reddedilmesine neden olabilir.
+
+Spring Security framework'ün bir parçasıdır. Kullanabilmek için `@EnableGlobalMethodSecurity` annotationdaki `prePostEnabled` özniteliğinin true olarak ayarlanması gerekir
+[source,kotlin]
+----
+//@EnableGlobalMethodSecurity(prePostEnabled = true)
+
+@PreAuthorize("hasRole('ROLE_VIEWER') or hasRole('ROLE_EDITOR')") // OR, AND olabilir
+fun isValidUsername(username:String?): Boolean = false
+----
+Daha detaylı örneği link:https://github.com/senocak/Kotlin-Spring-Blog-Boilerplate/blob/b4c4c6840e84d3226b022cfd0a3f421cc9a50cd8/spring-kotlin/src/main/kotlin/com/github/senocak/service/PostService.kt#L12[buradan] bulabilirsiniz
+
+=== @RolesAllowed
+Kaynağı, link:https://jcp.org/en/jsr/detail?id=250[JSR-250] Java güvenlik standardındadır. Bu açıklama, yalnızca rol tabanlı güvenliği desteklediğinden @PreAuthorize ek açıklamasından daha sınırlıdır. Kullanmak için, bu açıklamayı içeren kitaplığın, Spring Security'nin bir parçası olmadığı için sınıf yolunda olması gerekir. Ek olarak, @EnableGlobalMethodSecurity ek açıklamasının jsr250Enabled özniteliğinin true olarak ayarlanması gerekir:
+[source,kotlin]
+----
+//@EnableGlobalMethodSecurity(jsr250Enabled = true)
+
+@RolesAllowed(value = ["ROLE_VIEWER", "ROLE_EDITOR"]) // OR ile seçilir
+fun isValidUsername(username:String?): Boolean = false
+----
+
+=== @Secured
+Metod güvenliğini yapılandırmak için kullanılabilen eski bir Spring Security 2 annotationdır. Rol tabanlı güvenlikten fazlasını destekler, ancak güvenlik kısıtlamalarını belirtmek için Spring Expression Language (SpEL) kullanımını desteklemez. Yeni uygulamalarda @PreAuthorize notunun bu anotasyon üzerinden kullanılması tavsiye edilir. Kullanılması için @EnableGlobalMethodSecurity ek açıklamasında securedEnabled özniteliği etkinleştirilmesi gerekir:
+[source,kotlin]
+----
+//@EnableGlobalMethodSecurity(securedEnabled=true)
+
+@Secured("ROLE_ADMIN")
+fun isValidUsername(username:String?): Boolean = false
+----
+TIP: @Secured ve @RolesAllowed aynı şeyi ifade eder ve farkı @Secured Spring'e özel bir annotationdır ancak @RolesAllowed Java standard annotationdır(#JSR250#).
+
+=== @PreFilter
+Metodu çalıştırmadan önce bir koleksiyon bağımsız değişkenini filtrelemek için @PreFilter annotation'ı kullanılır
+[source,kotlin]
+----
+import java.util.stream.Collectors
+
+@PreFilter("filterObject != authentication.principal.username")
+fun joinUsernames(usernames:List<String?>): String =
+    usernames.stream().collect(Collectors.joining(";"))
+----
+Bu örnekte, kimliği doğrulanan kullanıcı dışındaki tüm kullanıcı adlarını birleştiriyoruz. Burada, ifademizde, koleksiyondaki mevcut nesneyi temsil etmek için filterObject adını kullanıyoruz. Ancak, metodun bir koleksiyon türü olan birden fazla argümanı varsa, hangi argümanı filtrelemek istediğimizi belirtmek için filterTarget özelliğini kullanmamız gerekir:
+
+[source,kotlin]
+----
+import java.util.stream.Collectors
+
+@PreFilter(value = "filterObject != authentication.principal.username", filterTarget = "usernames")
+fun joinUsernamesAndRoles(usernames:List<String?>, roles:List<String?>): String =
+    usernames.stream().collect(Collectors.joining(";")) + ":" + roles.stream().collect(Collectors.joining(";"))
+----
+=== Sonuç
+|===
+|Security Annotation|SpEL Desteği
+
+|@PreAuthorize|EVET
+|@PostAuthorize|EVET
+|@PreFilter|EVET
+|@PostFilter|EVET
+|@Secured|HAYIR
+|@RolesAllowed|HAYIR
+|===
