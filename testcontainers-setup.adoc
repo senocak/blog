@@ -1,4 +1,4 @@
-= Testcontainers / PostgreSQL, MySQL, MariaDB
+= Testcontainers / PostgreSQL, MySQL, MariaDB, Redis, RabbitMq
 :source-highlighter: highlight.js
 Anıl Şenocak <senocakanil@gmail.com>
 2.0, April 16, 2024
@@ -118,7 +118,10 @@ public class OwnerRepositoryTests {
 ----
 
 == @SpringBootTest
+Testlerimizde kullanılacak ApplicationContext'i oluşturarak çalışır. Çalışma ortamımızı yapılandırmak için @SpringBootTest'in webEnvironment niteliğini kullanabiliriz; kapsayıcının mock bir sunucu uygulaması ortamında çalışması için burada WebEnvironment.MOCK kullanıyoruz.
+
 Uygulama tanımlı veri kaynağını kullanır, bu nedenle ek değişiklik gerekmez.
+
 [source, java]
 ----
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -138,6 +141,8 @@ public class OwnerResourceTests {
     }
 }
 ----
+
+TIP: `AutoConfigureMockMvc` MockMvc'yi yapılandırmak istediğimizde kullanırız. MockMvc ile ilgili tüm otomatik yapılandırmayı etkinleştirir.
 
 == Testcontainer manuel configuration
 Aşağıdaki örnek SpringBoot 3.2.2 ve Kotlin ile yapılmıştır.
@@ -278,6 +283,62 @@ class RedisInitializer : ApplicationContextInitializer<ConfigurableApplicationCo
 ])
 annotation class SpringBootTestConfig
 ----
+
+==== Target
+Annotation kullanım aralığını ayarlar ve ElementType'a göre açıklama kullanılabilir aralığının numaralandırma kümesini belirtir.
+
+    ElementType.ANNOTATION_TYPE, annotation'ın @interface tarafından yazıldığını, aksi takdirde bir hata bildirildiğini belirtir. Benzer şekilde, yaygın olarak kullanılan ElementType.METHOD, açıklamanın metod olduğu anlamına gelir, aksi takdirde bir hata bildirilir.
+
+ElementType:
+
+|===
+|Tip|Annotation scope
+
+|TYPE|Sınıf, interface veya enum bildirimi
+|FIELD|Alan bildirimleri ve enum sabitleri
+|METHOD|method
+|PARAMETER|parametre
+|CONSTRUCTOR|Construction metod
+|LOCAL_VARIABLE|Local değişken
+|ANNOTATION_TYPE|Annotation tipi (@interface tarafından değiştirilen tür)
+|PACKAGE|Kurulum paketi beyanı
+|TYPE_PARAMETER|Tip parametresi bildirimi
+|TYPE_USE|Tek tip kullan
+
+|Column 1, row 1
+|===
+
+==== Retention
+RetentionPolicy enum türünün sabitiyle birlikte, yorumun ne kadar süreyle tutulması gerektiğini belirtir.  RetentionPolicy yorumları tutmak için çeşitli stratejileri açıklar.
+
+|===
+||Açıklama
+|SOURCE|Derleyici yorumu drop eder.
+|CLASS|Derleyici dosyada günlüğe kaydedilir ve varsayılan çalışma zamanı sanal makine saklaması gerektirmez.
+|RUNTIME|Derleyici bir dosyaya kaydedilir ve kolay okuma için sanal makine çalışma zamanı tarafından tutulur.
+
+|Column 1, row 1
+|===
+
+==== ActiveProfiles
+Spring integration testinde ApplicationContext'i yüklerken profilleri etkinleştirmek için kullanılan sınıf düzeyinde bir açıklamadır. Aşağıdaki özellikleri vardır.
+
+profiles: Etkinleştirilecek profilleri belirtir.
+resolver: Profilleri programlı olarak etkinleştirmek için ActiveProfilesResolver'ı belirtir.
+value: profiles öğesinin takma adıdır
+inheritProfiles: Etkin profillerin üst sınıftan devralınıp devralınmayacağına karar veren Boolean değeridir. Varsayılan değeri true.
+
+==== @ContextConfiguration:
+Spring entegrasyonu testi için bir ApplicationContext yükler. ApplicationContext'i XML kaynağı veya @Configuration ile açıklamalı JavaConfig kullanarak yükleyebilir. Ayrıca @Component, @Service, @Repository vb. ile açıklamalı bir bileşenleri yükleyebilir. Ayrıca javax.inject ile anootated edilmiş sınıfları da yükleyebiliriz. Aşağıdaki öğelere sahiptir.
+
+- `classes` @Configuration ile tanımlanmış sınıflar, ApplicationContext'i yüklemek için atanır.
+- `inheritInitializers` Test üst sınıflarından bağlam başlatıcıların devralınıp devralınmayacağına karar veren bir Boolean değeri. Varsayılan true
+- `inheritLocations` Test üst sınıflarından resource konumlarının veya annotate edilmiş sınıfların devralınıp devralınmayacağına karar veren Boolean değeri. Varsayılan true
+- `initializers` ConfigurableApplicationContext'i başlatan uygulama bağlamı başlatıcı sınıflarını belirtiriz.
+- `loader` ApplicationContext'i yüklemek için ContextLoader veya SmartContextLoader sınıfımızı belirtiyoruz.
+- `locations` ApplicationContext'i yüklemek için resource konumlarını belirtiriz.
+- `name` Bu konfigürasyon tarafından temsil edilen bağlam hiyerarşi seviyesinin adıdır.
+- `value` locations öğesinin diğer adıdır.
 
 === Testing
 [source, kotlin]

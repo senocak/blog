@@ -57,5 +57,5 @@ TIP: Bütün örnekler java ile uyumlu çalışan kotlin ile yazılmaya özen g�
 |link:tum-responselara-header-ekleme.adoc[Tüm Responselara Header Ekleme]|Bir filtre kullanarak, mapping yöntemlerinin her biri için manuel olarak response header eklemekten kaçınabiliriz.
 |link:hibernate-vs-spring-data-jpa.adoc[Hibernate vs Spring Data JPA]|Hibernate bir JPA uygulamasıdır, Spring Data JPA ise bir JPA Veri Erişim Soyutlamasıdır.
 |link:spring-boot-ve-veritabani-islemleri.adoc[Spring Boot ve Veritabanı İşlemleri]|Spring Boot JDBC, JPA/Hibernate, JOOQ gibi SQL tabanlı veri erişim teknolojileri ile çalışmayı kolaylaştırır.
-|link:testcontainers-postgresql-mysql-mariadb.adoc[Testcontainers / PostgreSQL, MySQL, MariaDB]|Testcontainers, Docker konteynerlerini JUnit testlerine kolaylıkla entegre etmeye izin veren bir Java kütüphanesidir.
+|link:testcontainers-setup.adoc[Testcontainers / PostgreSQL, MySQL, MariaDB, Redis, RabbitMq]|Testcontainers, Docker konteynerlerini JUnit testlerine kolaylıkla entegre etmeye izin veren bir Java kütüphanesidir.
 |===
