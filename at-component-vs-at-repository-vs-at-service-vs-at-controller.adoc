@@ -1,0 +1,64 @@
+= @Component vs @Repository vs @Service vs @Controller
+:source-highlighter: highlight.js
+Anıl Şenocak <senocakanil@gmail.com>
+2.0, April 16, 2024
+:description: @Component vs @Repository vs @Service vs @Controller
+:organization: Personal
+:doctype: book
+:preface-title: Preface
+// Settings:
+:experimental:
+:reproducible:
+:icons: font
+:listing-caption: Listing
+:sectnums:
+:toc:
+:toclevels: 3
+:xrefstyle: short
+:nofooter:
+
+[%notitle]
+--
+[abstract]
+{description}
+--
+== Benzerlikler;
+Vurgulamaya değer ilk nokta, BeanDefinition için otomatik tarama algılama ve dependency injection ile ilgili olarak tüm bu annotation'ların (yani, @Component, @Service, @Repository, @Controller) aynı olmasıdır. Birini diğerinin yerine kısmen kullanabiliriz ve yine de yolumuza devam edebiliriz.
+
+== Farklılıklar;
+=== @Component
+Bu, sınıfın bir spring component olduğunu belirten genel amaçlı bir stereotip annotation'dır.
+
+Özel olan şey; <context:component-scan> yalnızca @Component'i tarar ve genel olarak @Controller, @Service ve @Repository aramaz. Kendilerine @Component ile annotate edildiğinde taranırlar. Görüldüğü gibi her @Controller, @Service ve @Repository birer @Component'tır.
+[source,java]
+----
+@Component
+public @interface Service {}
+
+@Component
+public @interface Repository {}
+
+@Component
+public @interface Controller {}
+----
+Bu nedenle @Controller, @Service ve @Repository'nin @Component'in özel türleri olduğunu söylemek yanlış olmaz. <context:component-scan> onları alır ve takip eden sınıflarını, sanki @Component ile açıklama eklenmiş gibi, bean olarak kaydeder. Custom tanımlanmış annotation'lar da taranır, çünkü kendilerine @Component notu eklenir, bu da @Component oldukları anlamına gelir.
+
+=== @Repository
+Bu, sınıfın bir data repository olduğunu belirtmek içindir. DAO (Data Access Objects) denir, DB'ye direkt erişirler.
+
+Görevi, platforma özel istisnaları yakalamak ve bunları Spring'in birleştirilmiş denetlenmemiş istisnalarından(unified unchecked exception) biri olarak yeniden atmaktır. Bunun için, Spring'in uygulama bağlamına aşağıdaki gibi eklememiz gereken PersistenceExceptionTranslationPostProcessor ile sağlanır:
+
+#<bean class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor"/>#
+
+Bu bean son işlemcisi, @Repository ile açıklamalı herhangi bir bean'i ekler, böylece platforma özgü istisnalar yakalanır ve ardından Spring'in denetlenmeyen veri erişimi istisnalarından biri olarak yeniden gönderilir.
+
+=== @Controller
+Belirli bir sınıfın bir controller rolüne hizmet ettiğini gösterir.
+
+Aynı görünseler bile, bu ek açıklamayı @Service veya @Repository gibi başkalarıyla değiştiremeyiz. Dispatcher, @Controller ile açıklamalı sınıfları tarar ve içlerinde `@RequestMapping` annoationları algılar ve yalnızca sınıfları @Controller ile açıklamalı olan class'ların metodları ile kullanabiliriz, @Component, @Service, @Repository ile çalışmayacaktır.
+
+=== @Service
+İş mantığını tutar ve veri katmanına(repository) giden istekleri yönetir.
+
+=== Sonuç
+Yukarıdakine benzer şekilde, gelecekte Spring, katmanlama kurallarına dayalı olarak @Service, @Controller ve @Repository için özel işlevler ekleyebilir. Bu nedenle, projeyi katmanlar doğrultusunda kullanmak her zaman iyi bir fikirdir.
