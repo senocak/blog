@@ -338,3 +338,7 @@ fun joinUsernamesAndRoles(usernames:List<String?>, roles:List<String?>): String 
 |@Secured|HAYIR
 |@RolesAllowed|HAYIR
 |===
+
+== Örnek
+
+link:https://github.com/senocak/SpringBoot-Kotlin-React-TypeScript-Boilerplate[SpringBoot Kotlin React TypeScript Boilerplate]
