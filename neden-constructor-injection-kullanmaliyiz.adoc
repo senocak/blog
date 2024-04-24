@@ -1,0 +1,131 @@
+= Neden Constructor Injection Kullanmalıyız?
+:source-highlighter: highlight.js
+Anıl Şenocak <senocakanil@gmail.com>
+2.0, April 16, 2024
+:description: Dependency injection, bir uygulamadaki sınıflar arasında gevşek bağlantı(loose coupling) uygulamaya yönelik bir yaklaşımdır. Bağımlılıkları enjekte etmenin farklı yolları vardır ve bu makale neden yapıcı enjeksiyonunun tercih edilen yol olması gerektiğini açıklamaktadır.
+:organization: Personal
+:doctype: book
+:preface-title: Preface
+// Settings:
+:experimental:
+:reproducible:
+:icons: font
+:listing-caption: Listing
+:sectnums:
+:toc:
+:toclevels: 3
+:xrefstyle: short
+:nofooter:
+
+[%notitle]
+--
+[abstract]
+{description}
+--
+== Dependency injection nedir?
+`Dependency` Bir nesne, işlemlerini gerçekleştirmek için genellikle diğer sınıfların nesnelerine ihtiyaç duyar. Bu nesnelere bağımlılıklar diyoruz.
+
+`Injection` Bir nesneye gerekli bağımlılıkları sağlama süreci.
+
+Bu nedenle dependency injection, kontrolün tersine çevrilmesinin (inversion of control, IoC) uygulanmasına yardımcı olur. Bu, bağımlılık nesnelerini oluşturan sınıf yerine, nesne oluşturma ve bağımlılıkları enjekte etme sorumluluğunun framework'e(Spring) verildiği anlamına gelir.
+
+Aşağıdakilerle bağımlılık enjeksiyonu uygulayabiliriz:
+
+== Constructor Injection
+Sınıf için gereken bağımlılıklar yapıcıya bağımsız değişkenler olarak sağlanır:
+
+[source,kotlin]
+----
+@Component
+internal class Cake (private val flavor:Flavor) {
+     fun getFlavor(): Flavor = flavor
+}
+----
+
+Spring 4.3'ten önce, constructor'a bir @Autowired ek açıklaması eklememiz gerekiyordu. Daha yeni sürümlerde, sınıfın yalnızca bir yapıcı metodu varsa bu isteğe bağlıdır. Yukarıdaki Cake sınıfında, yalnızca bir kurucumuz olduğundan, @Autowired açıklamasını belirtmemize gerek yoktur.
+
+TIP: Birden çok constructor olduğunda, @Autowired açıklamasını herhangi bir kurucuya açıkça eklememiz gerekir, böylece Spring, bağımlılıkları enjekte etmek için hangi kurucunun kullanılacağını bilir.
+
+== Setter Injection
+Gerekli bağımlılıkları sınıfa alan parametreleri olarak injeckte ediyoruz ve değerler, özelliklerin "setter" yöntemleri kullanılarak ayarlanıyor. Setter metodlarını @Autowired açıklama ile açıklamalıyız. Cake sınıfı, Topping türünde bir nesne gerektirir. Topping nesnesi, bu özelliğin ayarlayıcı yönteminde bir argüman olarak sağlanır:
+[source,java]
+----
+@Component
+class Cookie {
+  private Topping toppings;
+
+  @Autowired
+  void setTopping(Topping toppings) {
+    this.toppings = toppings;
+  }
+
+  Topping getTopping() {
+    return toppings;
+  }
+  //...
+}
+----
+
+== Field Injection
+Spring, gerekli bağımlılıkları doğrudan @Autowired açıklama ile açıklama ekleme alanlarına atar. Bu örnekte, Spring'in Topping bağımlılığını alan enjeksiyonu yoluyla enjekte etmesine izin veriyoruz:
+[source,kotlin]
+----
+@Component
+internal class IceCream  {
+    @Autowired
+    var toppings:Topping? = null
+ }
+----
+
+== Field ve Setter Enjeksiyonlarının Birleşimi
+@Autowired'ı her ikisine de bir alan ve bir ayarlayıcı eklersek ne olur? Spring, bağımlılığı enjekte etmek için hangi yöntemi kullanacak?
+[source,java]
+----
+@Component
+class Pizza {
+@Autowired
+private Topping toppings;
+
+  Topping getToppings() {
+    return toppings;
+  }
+
+  @Autowired
+  void setToppings(Topping toppings) {
+    this.toppings = toppings;
+  }
+}
+----
+Yukarıdaki örnekte, hem "set" fonksiyonuna hem de alana @Autowired açıklamasını ekledik. Bu durumda Spring, setter enjeksiyon yöntemini kullanarak bağımlılık enjekte eder. Kodu daha az okunabilir hale getireceğinden enjeksiyon türlerini tek bir sınıfta karıştırmanın kötü bir uygulama olduğunu unutmayın.
+
+== Neden Constructor Injection Kullanmalıyım?
+Artık farklı enjeksiyon türlerini gördüğümüze göre, yapıcı enjeksiyon kullanmanın bazı avantajlarından geçelim.
+
+=== Tüm Gerekli Bağımlılıklar Başlatma Zamanında Mevcuttur
+Objeyi yapıcı metod çağrıdığında oluştururuz. Yapıcı metod gerekli tüm bağımlılıkları parametre olarak beklerse, o zaman sınıfın bağımlılıkları enjekte edilmeden asla somutlaştırılmayacağından %100 emin olabiliriz.
+
+IoC konteyneri, yapıcı metoda sağlanan tüm argümanların yapıcıya aktarılmadan önce kullanılabilir olmasını sağlar. Bu, kötü şöhretli NullPointerException'ı önlemeye yardımcı olur.
+
+Constructor injection son derece kullanışlıdır, çünkü gerekli tüm bağımlılıkların yüklenip yüklenmediğini kontrol etmek için her yerde ayrı bir iş mantığı yazmak zorunda olmadığımız için kod karmaşıklığı basitleştirilir.
+
+=== İsteğe Bağlı Bağımlılıklar Ne Olacak?
+Setter injection ile Spring, bir ayarlayıcı yöntemine @Autowired(required=false) ekleyerek isteğe bağlı bağımlılıkları belirlememizi sağlar. required=false tüm yapıcı bağımsız değişkenlerine uygulanacağından bu, yapıcı ekleme ile mümkün değildir.
+
+Java'nın Optional türünü kullanarak yapıcı enjeksiyonu ile isteğe bağlı bağımlılıklar sağlamaya devam edebiliriz.
+
+=== Code Smell'leri tanımlama
+Constructor Injection, beanlerimizin çok fazla başka nesneye bağımlı olup olmadığını belirlememize yardımcı olur. Kurucumuzun çok sayıda argümanı varsa, bu sınıfımızın çok fazla sorumluluğu olduğunun bir işareti olabilir. Sorunların uygun şekilde ayrılmasını daha iyi ele almak için kodumuzu yeniden düzenlemeyi düşünmek isteyebiliriz.
+
+=== Testlerde Hataların Önlenmesi
+Constructor Injection, birim testleri yazmayı basitleştirir. Bizi tüm bağımlılıklar için geçerli nesneler sağlamaya zorlar. link:mockito-doreturn-vs-thenreturn.adoc[`Mockito`] gibi mocking kütüphaneleri kullanarak, daha sonra kurucuya aktarabileceğimiz sahte nesneler oluşturabiliriz.
+
+Elbette Setter aracılığıyla da mock dataları verebiliriz, ancak bir sınıfa yeni bir bağımlılık eklersek, testte ayarlayıcıyı çağırmayı unutabiliriz, bu da potansiyel olarak testte bir NullPointerException'a neden olur. Yapıcı enjeksiyonu, test senaryolarımızın yalnızca tüm bağımlılıklar mevcut olduğunda yürütülmesini sağlar.
+
+=== Değişmezlik
+Constructor Injection, sabit nesneler oluşturmaya yardımcı olur çünkü bir yapıcının imzası, nesneleri oluşturmanın tek olası yoludur. Bir bean oluşturduğumuzda, artık bağımlılıklarını değiştiremeyiz. Ayarlayıcı enjeksiyonu ile, oluşturulduktan sonra bağımlılığı enjekte etmek mümkündür, bu da diğer şeylerin yanı sıra çok iş parçacıklı bir ortamda iş parçacığı güvenli olmayabilen ve değişkenliklerinden dolayı hata ayıklaması daha zor olan değişken nesnelere yol açar.
+
+=== Sonuç
+Constructor injection, kodu daha sağlam hale getirir. NullPointerException'ı ve diğer hataları önleyerek değişmez nesneler oluşturmamızı sağlar.
+
+
+

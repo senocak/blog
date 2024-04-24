@@ -73,10 +73,15 @@ TIP: Eğer custom `AuthenticationManager` kullanmıyorsanız yine ilgili method'
 ----
 @Configuration
 @EnableWebSecurity
-public class PetClinicSecurityConfig(
-    JwtAuthenticationEntryPoint unauthorizedHandler,
-    JwtAuthenticationFilter jwtAuthenticationFilter
-)extends WebSecurityConfigurerAdapter {
+public class PetClinicSecurityConfig extends WebSecurityConfigurerAdapter {
+    private final JwtAuthenticationEntryPoint unauthorizedHandler;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    PetClinicSecurityConfig(JwtAuthenticationEntryPoint unauthorizedHandler, JwtAuthenticationFilter jwtAuthenticationFilter) {
+        this.unauthorizedHandler = unauthorizedHandler;
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+    }
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
@@ -185,7 +190,12 @@ public class LoginFormController {
 [source, java]
 ----
 @Configuration
-public class SecurityConfiguration(UserDetailsService userDetailsService) extends WebSecurityConfigurerAdapter{
+public class SecurityConfiguration extends WebSecurityConfigurerAdapter{
+    private final UserDetailsService userDetailsService;
+
+    SecurityConfiguration(UserDetailsService userDetailsService) {
+        this.userDetailsService = userDetailsService;
+    }
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
