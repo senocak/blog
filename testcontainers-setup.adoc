@@ -127,9 +127,8 @@ Uygulama tanımlı veri kaynağını kullanır, bu nedenle ek değişiklik gerek
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 public class OwnerResourceTests {
-
-    @Autowired
-    WebApplicationContext wac;
+    @MockBean UserRepository mockRepository;
+    @Autowired WebApplicationContext wac;
 
     @Test
     void findAllReturnsJohnDoe() throws Exception {
@@ -139,10 +138,35 @@ public class OwnerResourceTests {
                .body("_embedded.owners.firstName", containsInAnyOrder("John"),
                      "_embedded.owners.lastName", containsInAnyOrder("Doe"));
     }
+
+    @Test
+    public void givenCountMethodMocked_WhenCountInvoked_ThenMockValueReturned() {
+        Mockito.when(mockRepository.count()).thenReturn(123L);
+
+        UserRepository userRepoFromContext = wac.getBean(UserRepository.class);
+        long userCount = userRepoFromContext.count();
+
+        Assert.assertEquals(123L, userCount);
+        Mockito.verify(mockRepository).count();
+    }
 }
 ----
 
+=== Mock Mvc ile Controller Metotlarının Test Edilmesi
+Spring Boot classpath’de Servlet API sınıfları mevcut ise default olarak Mock nesnelerden oluşan bir Servlet Container ortamı oluşturmaktadır.
+
+Bu ortam üzerinden Tomcat gibi herhangi bir web container olmaksızın MVC controller metotları entegrasyon testlerine tabi tutulabilir
+
 TIP: `AutoConfigureMockMvc` MockMvc'yi yapılandırmak istediğimizde kullanırız. MockMvc ile ilgili tüm otomatik yapılandırmayı etkinleştirir.
+
+=== @MockBean Annotation
+Spring uygulama bağlamına mock nesneler eklemek için @MockBean kullanabiliriz. Mock nesne, uygulama bağlamında aynı türden herhangi bir mevcut bean'nin yerini alacaktır.
+
+Aynı türden bir bean tanımlanmamışsa, yeni bir tane eklenecektir. Bu açıklama, belirli bir bean'nin mock edilmesi gereken entegrasyon testlerinde kullanışlıdır.
+
+Annotation'ı bir alanda kullandığımızda, uygulama bağlamında kayıtlı olmanın yanı sıra, sahte alana da enjekte edilecektir. Bu, yukarıdaki kodda belirgindir.
+
+Burada, count yöntemini saplamak için enjekte edilen UserRepository mock'unu kullandık. Daha sonra, gerçekten mock bean olduğunu doğrulamak için uygulama bağlamındaki bean'i kullandık.
 
 == Testcontainer manuel configuration
 Aşağıdaki örnek SpringBoot 3.2.2 ve Kotlin ile yapılmıştır.
